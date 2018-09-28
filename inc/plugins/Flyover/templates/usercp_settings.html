@@ -1,0 +1,45 @@
+<html>
+	<head>
+		<title>{$lang->flyover_settings_title} - {$mybb->settings['bbname']}</title>
+		{$headerinclude}
+	</head>
+	<body>
+		{$header}
+		<table width="100%" border="0" align="center" class="flyover">
+			<tr>
+				{$usercpnav}
+				<td valign="top">
+					{$errors}
+					<form action="usercp.php?action=flyover" method="post">
+						<input type="hidden" name="my_post_key" value="{$mybb->post_code}" />
+						<table border="0" cellspacing="{$theme['borderwidth']}" cellpadding="{$theme['tablespace']}" class="tborder">
+							<thead>
+								<tr>
+									<th class="thead" colspan="2">
+										<strong>{$lang->flyover_settings_title}</strong>
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td class="trow1" valign="top">
+										<table border="0" cellspacing="{$theme['borderwidth']}" cellpadding="{$theme['tablespace']}" width="100%" class="content">
+										 {$options_header}
+										 {$options}
+										 {$options_footer}
+										</table>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						<div style="text-align:center; margin: 10px 0">
+							<input type="submit" class="button" value="{$lang->flyover_settings_save}" />
+						</div>
+					</form>
+				</td>
+			</tr>
+		</table>
+		{$footer}
+		{$popup_script}
+	</body>
+</html>

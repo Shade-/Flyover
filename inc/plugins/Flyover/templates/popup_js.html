@@ -1,0 +1,47 @@
+<script type="text/javascript">
+	
+	(function($, document) {
+
+		var openPopup = function(obj) {
+			
+			var screenX = typeof window.screenX != 'undefined' ? window.screenX : window.screenLeft,
+				screenY = typeof window.screenY != 'undefined' ? window.screenY : window.screenTop,
+				outerWidth = typeof window.outerWidth != 'undefined' ? window.outerWidth : document.body.clientWidth,
+				outerHeight = typeof window.outerHeight != 'undefined' ? window.outerHeight : (document.body.clientHeight - 22),
+				width = 700,
+				height = 410,
+				left = parseInt(screenX + ((outerWidth - width) / 2), 10),
+				top = parseInt(screenY + ((outerHeight - height) / 2.5), 10),
+				features = (
+					'width=' + width +
+					',height=' + height +
+					',left=' + left +
+					',top=' + top
+				);
+
+			var newwindow = window.open(obj.getAttribute("href") + "&popup=1", 'flyover_login', features);
+			var provider = obj.getAttribute("provider");
+			
+			newwindow.document.body.innerHTML += '{$popup_html}';
+
+			if (window.focus) {
+				return newwindow.focus();
+			}
+			
+			return false;
+			
+		}
+		
+		$(document).ready(function() {
+			
+			$('.fpopup:not(.unlink)').on('click', function(e) {
+				
+				e.preventDefault();
+				return openPopup(this);
+				
+			});
+			
+		});
+		
+	})(jQuery, document);
+</script>

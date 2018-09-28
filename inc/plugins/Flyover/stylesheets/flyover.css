@@ -1,0 +1,213 @@
+.flyover th {
+    text-align: center
+}
+.flyover tr td:first-child > .icon {
+    float: left;
+    margin: 0 8px 0 0
+}
+.flyover tr td:first-child > .title {
+    font-size: 14px
+}
+.flyover tr td:first-child > .smalltext {
+    color: #929292
+}
+.flyover tr td:first-child .sync,
+.flyover tr td:first-child .unlink {
+    margin-right: 10px;
+    float: right
+}
+.flyover tr td:first-child .unlink {
+    color: #e66a6a
+}
+.flyover .content td:last-child {
+    width: 30%
+}
+.flyover .content td:last-child label {
+    width: 50%;
+    float: left;
+}
+.flyover .icon {
+    width: 35px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px
+}
+.flyover .footer {
+    text-align: center
+}
+.flyover .footer div {
+    font-size: 15px;
+    margin: 5px 0 10px
+}
+.flyover .footer .icon {
+    -webkit-transition: all .2s ease;
+    transition: all .2s ease;
+    position: relative;
+    top: 0
+}
+.flyover .footer .icon:hover {
+    top: -3px
+}
+.flyover [class*="500px"] {
+    background: #444
+}
+.flyover .aol,
+.flyover .steam {
+    background: #000
+}
+.flyover .bitbucket {
+    background: #205081
+}
+.flyover .deezer {
+    background: #272727
+}
+.flyover .discord {
+    background: #7289DA
+}
+.flyover .disqus {
+    background: #2E9FFF
+}
+.flyover .dribbble {
+    background: #EA4C89
+}
+.flyover .dropbox {
+    background: #2281CF
+}
+.flyover .evernote {
+    background: #6BB130
+}
+.flyover .facebook {
+    background: #3B5998
+}
+.flyover .foursquare {
+    background: #2398C9
+}
+.flyover .github {
+    background: #4183C4
+}
+.flyover .google {
+    background: #245DC1
+}
+.flyover .instagram {
+    background: #3F729B
+}
+.flyover .lastfm {
+    background: #D51007
+}
+.flyover .linkedin {
+    background: #007FB1
+}
+.flyover .microsoft {
+    background: #3E73B4
+}
+.flyover .paypal {
+    background: #1F356F
+}
+.flyover .reddit {
+    background: #FF4500
+}
+.flyover .soundcloud {
+    background: #FF6600
+}
+.flyover .stackexchange {
+    background: #1F5196
+}
+.flyover .tumblr {
+    background: #2C4762
+}
+.flyover .twitchtv {
+    background: #6441A5
+}
+.flyover .twitter {
+    background: #00ACED
+}
+.flyover .vimeo {
+    background: #44BBFF
+}
+.flyover .vkontakte {
+    background: #2E9FFF
+}
+.flyover .wordpress {
+    background: #21759B
+}
+.flyover .yahoo {
+    background: #731A8B
+}
+.flyover .login_box {
+    display: inline-block;
+    padding: 10px 15px;
+    margin: 10px 0;
+    vertical-align: middle
+}
+.flyover .login_box_buttons {
+    padding: 5px 8px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    color: #fff;
+    font-family: 'Helvetica Neue', 'Helvetica', Arial, sans-serif;
+    font-size: 13px;
+    vertical-align: middle;
+    margin: 2px 0;
+    display: inline-block;
+    line-height: 20px;
+    width: 49%;
+    text-align: left;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    font-weight: 500
+}
+.flyover .login_box_buttons .icon {
+    width: 20px;
+    vertical-align: middle
+}
+.flyover .login_box_icon {
+    vertical-align: middle;
+    margin: 3px;
+    display: inline-block;
+}
+.flyover .login_box_icon_text {
+    vertical-align: middle;
+    margin: 5px 5px 5px 0
+}
+.flyover .login_box_icon_text_wrapper {
+    display: inline-block;
+    text-align: left;
+    width: 49%
+}
+.choose-account .desc {
+    margin: 20px 0 0;
+    text-align: center
+}
+.choose-account .accounts {
+    margin: 70px 0;
+    text-align: center
+}
+.choose-account .accounts > div {
+    display: inline-block;
+    margin: 0 10px;
+    cursor: pointer;
+    min-width: 150px;
+    padding: 12px 15px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    -webkit-transition: all .2s ease;
+    transition: all .2s ease
+}
+.choose-account .accounts > div:hover {
+    background: #fff;
+    -webkit-box-shadow: 0 2px 10px -2px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 10px -2px rgba(0, 0, 0, 0.1)
+}
+.choose-account .accounts > div * {
+    cursor: pointer
+}
+.choose-account .accounts > div h2 {
+    margin-bottom: 0;
+    font-weight: 500
+}
+.choose-account .accounts > div .avatar {
+    -webkit-border-radius: 999em;
+    border-radius: 999em;
+    max-height: 70px;
+    max-width: 70px
+}
