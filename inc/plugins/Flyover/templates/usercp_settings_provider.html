@@ -1,10 +1,14 @@
 <tr>
 	<td class="{$altbg}">
-		{$image}
-		<div class="title">{$key}</div>
-		<span class="smalltext">{$unlink} {$sync} {$connected_with}</span>
+		<i class="icon fab fa-{$lowercaseProvider} {$lowercaseProvider}"></i>
+		<div class="title">{$provider}</div>
+		<span class="smalltext">
+			<a class='sync' href='usercp.php?action=sync&provider={$provider}'>{$this->lang->flyover_settings_sync}</a>
+			<a class='unlink' href='usercp.php?action=unlink&provider={$provider}'>{$this->lang->flyover_settings_unlink}</a>
+			{$connectedWith}
+		</span>
 	</td>
 	<td class="{$altbg}">
-		{$provider_settings}
+		{$settings}
 	</td>
 </tr>

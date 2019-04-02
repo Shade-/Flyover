@@ -4,9 +4,9 @@
  * Integrates MyBB with many social networks, featuring login and registration.
  *
  * @package Flyover
- * @author  Shade <legend_k@live.it>
+ * @author  Shade <shad3-@outlook.com>
  * @license Copyrighted ©
- * @version 1.5
+ * @version 2.0 (update version no only when templates are ready!)
  */
 
 if (!defined('IN_MYBB')) {
@@ -17,7 +17,8 @@ if (!defined("PLUGINLIBRARY")) {
 	define("PLUGINLIBRARY", MYBB_ROOT . "inc/plugins/pluginlibrary.php");
 }
 
-define ('FLYOVER', MYBB_ROOT . "inc/plugins/Flyover/class_core.php");
+define ('FLYOVER', MYBB_ROOT . "flyover/autoload.php");
+include FLYOVER;
 
 function flyover_info()
 {
@@ -27,7 +28,7 @@ function flyover_info()
 		'website' => 'https://www.mybboost.com',
 		'author' => 'Shade',
 		'authorsite' => 'https://www.mybboost.com',
-		'version' => '1.5',
+		'version' => '2.0',
 		'compatibility' => '16*,18*'
 	];
 }
@@ -105,17 +106,17 @@ function flyover_install()
 			'value' => '1'
 		],
 
-		// Email&passwordless
-		'email_pw_less' => [
-			'title' => $lang->setting_flyover_email_pw_less,
-			'description' => $lang->setting_flyover_email_pw_less_desc,
-			'value' => '1'
+		// Passwordless
+		'passwordless' => [
+			'title' => $lang->setting_flyover_passwordless,
+			'description' => $lang->setting_flyover_passwordless_desc,
+			'value' => '0'
 		],
 
-		// Popup mode
-		'popup_mode' => [
-			'title' => $lang->setting_flyover_popup_mode,
-			'description' => $lang->setting_flyover_popup_mode_desc,
+		// Continuous operational state
+		'keeprunning' => [
+			'title' => $lang->setting_flyover_keeprunning,
+			'description' => $lang->setting_flyover_keeprunning_desc,
 			'value' => '0'
 		],
 
@@ -130,8 +131,12 @@ function flyover_install()
 	];
 
 	// Get custom userfields to add to the db
-	$customFields = flyover_get_active_userfield_list(true);
+	$customFields = Flyover\Helper\Utilities::getUserfields();
 	foreach ($customFields as $field) {
+
+		if (in_array($field, ['avatar', 'website'])) {
+			continue;
+		}
 
 		$tempKey = $field . 'field';
 		$tempTitle = 'setting_flyover_' . $tempKey;
@@ -195,38 +200,23 @@ function flyover_install()
 	        id VARCHAR(255) NOT NULL DEFAULT '',
 	        secret VARCHAR(255) NOT NULL DEFAULT '',
 	        key_token VARCHAR(255) NOT NULL DEFAULT '',
+	        scopes TEXT,
 	        usergroup TINYINT(5) NOT NULL DEFAULT '2',
 			settings TEXT
         ) ENGINE=MyISAM{$collation};");
 
 	}
 
-	if (!$db->table_exists('flyover_settings_data')) {
+	if (!$db->table_exists('flyover_users')) {
 
 		$collation = $db->build_create_table_collation();
 
-		$db->write_query("CREATE TABLE " . TABLE_PREFIX . "flyover_settings_data (
+		$db->write_query("CREATE TABLE " . TABLE_PREFIX . "flyover_users (
 	        uid INT(10) NOT NULL PRIMARY KEY,
 	        usernames TEXT
         ) ENGINE=MyISAM{$collation};");
 
 	}
-
-	if (!$db->table_exists('flyover_reports')) {
-
-        $collation = $db->build_create_table_collation();
-
-        $db->write_query("CREATE TABLE ".TABLE_PREFIX."flyover_reports (
-            id INT(10) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-            dateline VARCHAR(15) NOT NULL DEFAULT '',
-            code VARCHAR(10) NOT NULL DEFAULT '',
-            file TEXT,
-            line INT(6) NOT NULL DEFAULT '0',
-            message TEXT,
-            trace TEXT
-            ) ENGINE=MyISAM{$collation};");
-
-    }
 
 	// Create cache
 	$info                        = flyover_info();
@@ -240,15 +230,13 @@ function flyover_install()
 
 	// Edit templates
 	require_once MYBB_ROOT . 'inc/adminfunctions_templates.php';
-	find_replace_templatesets('header_welcomeblock_guest', '#\<input name\=\"submit\" type\=\"submit\" class\=\"button\" value\=\"\{\$lang\-\>login\}\" \/\>\<\/div\>\s*\<\/td\>\s*\<\/tr\>#i', '<input name="submit" type="submit" class="button" value="{\$lang->login}" /></div>
-								</td>
-							</tr>
-							<flyover_login_box>');
-	find_replace_templatesets('error_nopermission', '#\<input type\=\"submit\" class\=\"button\" value\=\"\{\$lang\-\>login\}\" tabindex\=\"3\" \/\>\s*\<\/td\>\s*\<\/tr\>#i', '<input type="submit" class="button" value="{\$lang->login}" tabindex="3"/>
-</td>
-</tr>
-<flyover_login_box>');
-	find_replace_templatesets('headerinclude', '#' . preg_quote('{$stylesheets}') . '#i', '{$stylesheets}{$flyover_popup_mode}');
+	find_replace_templatesets('header_welcomeblock_guest_login_modal', '#\z#i', "\n<flyover_login_box>");
+	find_replace_templatesets('error_nopermission', '#' . preg_quote("</tr>
+</table>
+</form>") . '#i', "</tr>
+<flyover_login_box>
+</table>
+</form>");
 
 }
 
@@ -278,7 +266,7 @@ function flyover_uninstall()
 
 	// Drop tables
 	$db->drop_table('flyover_settings');
-	$db->drop_table('flyover_settings_data');
+	$db->drop_table('flyover_users');
 	$db->drop_table('flyover_reports');
 
 	// Delete settings cache
@@ -286,13 +274,12 @@ function flyover_uninstall()
 
 	// Delete templates and stylesheets
 	$PL->templates_delete('flyover');
-	$PL->stylesheet_delete('alerts.css');
+	$PL->stylesheet_delete('flyover.css');
 
 	// Edit templates
 	require_once MYBB_ROOT . 'inc/adminfunctions_templates.php';
-	find_replace_templatesets('header_welcomeblock_guest', '#' . preg_quote('<flyover_login_box>') . '#i', '');
+	find_replace_templatesets('header_welcomeblock_guest_login_modal', '#' . preg_quote('<flyover_login_box>') . '#i', '');
 	find_replace_templatesets('error_nopermission', '#' . preg_quote('<flyover_login_box>') . '#i', '');
-	find_replace_templatesets('headerinclude', '#' . preg_quote('{$flyover_popup_mode}') . '#i', '');
 }
 
 global $mybb;
@@ -301,13 +288,7 @@ if ($mybb->settings['flyover_enabled']) {
 
 	// Global
 	$plugins->add_hook('global_start', 'flyover_global');
-	$plugins->add_hook('global_end', 'flyover_global_end');
 	$plugins->add_hook('pre_output_page', 'flyover_pre_output_page');
-
-	// 1.8
-	if ($mybb->version_code > 1700) {
-		$plugins->add_hook('global_intermediate', 'flyover_global_int');
-	}
 
 	// User CP
 	$plugins->add_hook('usercp_menu', 'flyover_usercp_menu', 40);
@@ -318,7 +299,7 @@ if ($mybb->settings['flyover_enabled']) {
 	$plugins->add_hook('usercp_start', 'flyover_usercp_email_password');
 	$plugins->add_hook('usercp_email', 'flyover_usercp_email_password_redirect');
 	$plugins->add_hook('usercp_password', 'flyover_usercp_email_password_redirect');
-	$plugins->add_hook('datahandler_login_verify_password_start', 'flyover_user_validate_password');
+	$plugins->add_hook('datahandler_login_verify_password_start', 'flyover_user_validate_login');
 	$plugins->add_hook('member_start', 'flyover_lang_load');
 
 	// Who's Online
@@ -349,29 +330,26 @@ function flyover_user_delete()
 {
 	global $db, $user;
 
-	$db->delete_query("flyover_settings_data", "uid = '{$user['uid']}'");
-
-	return true;
-
+	return $db->delete_query("flyover_users", "uid = '{$user['uid']}'");
 }
 
-// Block empty passwords
-function flyover_user_validate_password(&$data)
+// Block empty passwords and usernames
+function flyover_user_validate_login(&$data)
 {
-	global $mybb;
-
-	if ($mybb->settings['flyover_email_pw_less'] and trim($mybb->input['password']) == '') {
+	if (empty(trim($data['this']->data['password']))) {
 		$data['this']->set_error('flyoveremptypassword');
 	}
-	
+
+	if (empty(trim($data['this']->data['username']))) {
+		$data['this']->invalid_combination();
+	}
+
 	return $data;
 }
 
 function flyover_lang_load()
 {
-	global $lang;
-
-	$lang->load('flyover');
+	$GLOBALS['lang']->load('flyover');
 }
 
 function flyover_user_validate(&$data)
@@ -379,16 +357,18 @@ function flyover_user_validate(&$data)
 	global $mybb;
 
 	// Fixes https://www.mybboost.com/thread-about-the-pw-username-issue
-	if ($mybb->settings['flyover_email_pw_less'] and $mybb->input['action'] != 'do_email_password' and THIS_SCRIPT == 'flyover.php') {
+	if ($mybb->settings['flyover_passwordless']
+		and $mybb->input['action'] != 'do_email_password'
+		and THIS_SCRIPT == 'flyover.php') {
 
-		unset ($data->errors['missing_email'],
-			   $data->errors['invalid_password_length'],
+		unset ($data->errors['invalid_password_length'],
 			   $data->errors['bad_password_security'],
 			   $data->errors['no_complex_characters']);
 
 		require_once MYBB_ROOT . 'inc/functions_user.php';
 
-		// Add a random loginkey to the user (since it is normally added during validation, and the password has not been entered, it will result in an empty value == not able to login)
+		// Add a random loginkey to the user (since it is normally added during validation, and the password
+		// has not been entered, it will result in an empty value == not able to login)
 		$data->data['loginkey'] = generate_loginkey();
 
 		return $data;
@@ -396,18 +376,24 @@ function flyover_user_validate(&$data)
 	}
 }
 
+function flyover_usercp()
+{
+	new Flyover\Usercp\Usercp;
+}
+
 function flyover_usercp_email_password()
 {
 	global $mybb, $db, $lang, $templates, $email, $email2, $headerinclude, $header, $errors, $theme, $usercpnav, $footer;
 
-	if (($mybb->user['email'] and $mybb->user['password']) or !in_array($mybb->input['action'], ['email_password', 'do_email_password'])) {
+	if (($mybb->user['email'] and $mybb->user['password'])
+		or !in_array($mybb->input['action'], ['email_password', 'do_email_password'])) {
 		return false;
 	}
 
-	if ($mybb->input['action'] == 'do_email_password' and $mybb->request_method == 'post') {
+	if ($mybb->request_method == 'post') {
 
 		// Verify incoming POST request
-		verify_post_check(mybb_get_input('my_post_key'));
+		verify_post_check($mybb->get_input('my_post_key'));
 
 		$errors = [];
 
@@ -415,15 +401,21 @@ function flyover_usercp_email_password()
 		require_once "inc/datahandlers/user.php";
 		$userhandler = new UserDataHandler("update");
 
-		$_user = [
+		$newData = [
 			"uid" => $mybb->user['uid'],
-			"email" => mybb_get_input('email'),
-			"email2" => mybb_get_input('email2'),
-			"password" => mybb_get_input('password'),
-			"password2" => mybb_get_input('password2')
+			"password" => $mybb->get_input('password'),
+			"password2" => $mybb->get_input('password2')
 		];
 
-		$userhandler->set_data($_user);
+		// Fallback for missing email (from 2.0, accounts are required to enter an email)
+		if ($mybb->get_input('email')) {
+
+			$newData['email'] = $mybb->get_input('email');
+			$newData['email2'] = $mybb->get_input('email2');
+
+		}
+
+		$userhandler->set_data($newData);
 
 		if (!$userhandler->validate_user()) {
 			$errors = $userhandler->get_friendly_errors();
@@ -434,13 +426,15 @@ function flyover_usercp_email_password()
 			my_setcookie("mybbuser", $mybb->user['uid']."_".$userhandler->data['loginkey']);
 
 			// Notify the user by email that their password has changed
-			$mail_message = $lang->sprintf($lang->email_changepassword, $mybb->user['username'], mybb_get_input('email'), $mybb->settings['bbname'], $mybb->settings['bburl']);
+			$mail_message = $lang->sprintf($lang->email_changepassword, $mybb->user['username'], $mybb->get_input('email'), $mybb->settings['bbname'], $mybb->settings['bburl']);
 			$lang->emailsubject_changepassword = $lang->sprintf($lang->emailsubject_changepassword, $mybb->settings['bbname']);
-			my_mail(mybb_get_input('email'), $lang->emailsubject_changepassword, $mail_message);
+			my_mail($mybb->get_input('email'), $lang->emailsubject_changepassword, $mail_message);
 
 			// Email requires no activation since the user has already registered using a provider (which should not produce any bots whatsoever)
-			$mail_message = $lang->sprintf($lang->email_changeemail_noactivation, $mybb->user['username'], $mybb->settings['bbname'], $mybb->user['email'], mybb_get_input('email'), $mybb->settings['bburl']);
-			my_mail(mybb_get_input('email'), $lang->sprintf($lang->emailsubject_changeemail, $mybb->settings['bbname']), $mail_message);
+			if ($mybb->get_input('email')) {
+				$mail_message = $lang->sprintf($lang->email_changeemail_noactivation, $mybb->user['username'], $mybb->settings['bbname'], $mybb->user['email'], $mybb->get_input('email'), $mybb->settings['bburl']);
+				my_mail($mybb->get_input('email'), $lang->sprintf($lang->emailsubject_changeemail, $mybb->settings['bbname']), $mail_message);
+			}
 
 			redirect("usercp.php?action=email", $lang->redirect_email_password_updated);
 
@@ -455,12 +449,19 @@ function flyover_usercp_email_password()
 
 	if ($mybb->input['action'] == 'email_password') {
 
+		add_breadcrumb($lang->nav_usercp, "usercp.php");
+		add_breadcrumb($lang->nav_password);
+
 		if ($errors) {
-			$email = htmlspecialchars_uni(mybb_get_input('email'));
-			$email2 = htmlspecialchars_uni(mybb_get_input('email2'));
+			$email = htmlspecialchars_uni($mybb->get_input('email'));
+			$email2 = htmlspecialchars_uni($mybb->get_input('email2'));
 		}
 		else {
 			$email = $email2 = '';
+		}
+
+		if (!$mybb->user['email']) {
+			eval("\$email = \"".$templates->get("flyover_usercp_email_password_emailbit")."\";");
 		}
 
 		eval("\$change_email_password = \"".$templates->get("flyover_usercp_email_password")."\";");
@@ -473,9 +474,9 @@ function flyover_usercp_email_password_redirect()
 {
 	global $mybb;
 
-	if (!$mybb->user['email'] and !$mybb->user['password']) {
+	if (!$mybb->user['email'] or !$mybb->user['password']) {
 		header("Location: usercp.php?action=email_password");
-		exit();
+		exit;
 	}
 }
 
@@ -526,43 +527,21 @@ function flyover_global()
 		$templatelist[] = 'flyover_usercp_menu';
 
 		if (in_array($mybb->input['action'], ['email_password', 'do_email_password'])) {
+
 			$templatelist[] = 'flyover_usercp_email_password';
+			$templatelist[] = 'flyover_usercp_email_password_emailbit';
+
 		}
 
 		if ($mybb->input['action'] == 'flyover') {
 
 			$templatelist[] = 'flyover_usercp_settings';
 			$templatelist[] = 'flyover_usercp_settings_header';
+			$templatelist[] = 'flyover_usercp_settings_actions';
 			$templatelist[] = 'flyover_usercp_settings_provider';
 			$templatelist[] = 'flyover_usercp_settings_provider_setting';
 			$templatelist[] = 'flyover_usercp_settings_footer';
 			$templatelist[] = 'flyover_usercp_settings_button';
-
-		}
-
-	}
-
-	// Slight performance loss, workaround needed? MyBB 1.6
-	if ($mybb->version_code < 1700) {
-
-		if ($mybb->settings['flyover_popup_mode'] and (!$mybb->user['uid'] or THIS_SCRIPT == 'usercp.php')) {
-
-			global $templates;
-
-			eval("\$popup_html = \"".$templates->get("flyover_popup_html")."\";");
-			$popup_html = trim(preg_replace('/\s+/', ' ', $popup_html));
-
-			eval("\$flyover_popup_mode = \"".$templates->get("flyover_popup_js")."\";");
-
-		}
-
-	}
-	else {
-
-		if ($mybb->settings['flyover_popup_mode']) {
-
-			$templatelist[] = 'flyover_popup_js';
-			$templatelist[] = 'flyover_popup_html';
 
 		}
 
@@ -574,107 +553,50 @@ function flyover_global()
 
 }
 
-function flyover_global_int()
-{
-	global $mybb, $lang, $flyover_popup_mode;
-
-	if ($mybb->settings['flyover_popup_mode'] and (!$mybb->user['uid'] or THIS_SCRIPT == 'usercp.php')) {
-
-		global $templates;
-
-		eval("\$popup_html = \"".$templates->get("flyover_popup_html")."\";");
-		$popup_html = trim(preg_replace('/\s+/', ' ', $popup_html));
-
-		eval("\$flyover_popup_mode = \"".$templates->get("flyover_popup_js")."\";");
-
-	}
-}
-
-function flyover_global_end()
-{
-	if (!session_id()) {
-		session_start();
-	}
-
-	// Search for any stored message (populated using popup mode)
-	$session = (array) $_SESSION['flyover'];
-
-	if ($session) {
-
-		unset($_SESSION['flyover']);
-
-		if ($session['type'] == 'error') {
-			error(htmlspecialchars_uni($session['message']));
-		}
-		else if ($session['type'] == 'success') {
-			redirect($_SERVER['REQUEST_URI'], htmlspecialchars_uni($session['message']), htmlspecialchars_uni($session['title']));
-		}
-
-	}
-}
-
 function flyover_pre_output_page(&$page)
 {
 	global $mybb, $lang, $templates;
 
-	require_once FLYOVER;
-	$Flyover = new Flyover();
-
-	// Logout from all providers – TODO: load every provider since HybridAuth logs out from loaded providers
-	/*if ($mybb->input['action'] == 'logout') {
-
-		$Flyover->load_api(true);
-
-		$Flyover->logout_all_providers();
-
-	}*/
+	$cache = new Flyover\Session\Cache();
 
 	// Build login links
-	$providers = $Flyover->readCache('settings', 'enabled');
+	$providers = $cache->read('settings', 'enabled');
 
 	if (!$providers) {
 		return false;
 	}
 
-	$querystring = $popupmode = '';
-
-	// Debug mode
-	if ($mybb->settings['flyover_debug_mode']) {
-		$querystring = "&debug_mode=true";
-	}
-
-	// Popup mode
-	if ($mybb->settings['flyover_popup_mode']) {
-		$popupmode = 'fpopup';
-	}
-
 	ksort($providers);
+
+	$types = [
+		1 => 'button',
+		2 => 'icon',
+		3 => 'icon_text'
+	];
+
+	$type = $types[intval($mybb->settings['flyover_login_box_type'])] ?? $types[1];
 
 	$buttons = '';
 	foreach ($providers as $provider) {
 
 		$name = $provider['provider'];
-		$l_name = strtolower($name);
-
-		switch ($mybb->settings['flyover_login_box_type']) {
-
-			// Buttons
-			case 1:
-			default:
-				eval("\$buttons .= \"".$templates->get("flyover_login_box_button")."\";");
-				break;
-
-			// Icons
-			case 2:
-				eval("\$buttons .= \"".$templates->get("flyover_login_box_icon")."\";");
-				break;
-
-			// Icons + text
-			case 3:
-				eval("\$buttons .= \"".$templates->get("flyover_login_box_icon_text")."\";");
-				break;
-
+		$lowercaseName = strtolower($name);
+		
+		// Adjustments for icons
+		if ($name == 'TwitchTV') {
+			$lowercaseName = 'twitch';
 		}
+		else if ($name == 'Vkontakte') {
+			$lowercaseName = 'vk';
+		}
+		else if ($name == 'WindowsLive') {
+			$lowercaseName = 'windows';
+		}
+		else if ($name == 'StackExchange') {
+			$lowercaseName = 'stack-exchange';
+		}
+
+		eval("\$buttons .= \"".$templates->get("flyover_login_box_" . $type)."\";");
 
 	}
 
@@ -694,340 +616,38 @@ function flyover_usercp_menu()
 	eval("\$usercpmenu .= \"" . $templates->get('flyover_usercp_menu') . "\";");
 }
 
-function flyover_usercp()
-{
-	global $mybb, $lang, $inlinesuccess;
-
-	if (!in_array($mybb->input['action'], ['link', 'unlink', 'sync', 'flyover'])) {
-		return false;
-	}
-
-	$errors = [];
-
-	require_once FLYOVER;
-	$Flyover = new Flyover();
-
-	// If we are just watching the UserCP page, we should not load any provider BUT still load the APIs (necessary to check for connected providers if using popup mode)
-	$without_provider = ($mybb->input['action'] == 'flyover') ? true : false;
-
-	$Flyover->load($without_provider);
-
-	$settingsToCheck = $Flyover->getActiveUserfieldList();
-
-	if (!$lang->flyover) {
-		$lang->load('flyover');
-	}
-
-	// Link user
-	if ($mybb->input['action'] == 'link' and $mybb->input['provider']) {
-
-		$Flyover->authenticate();
-
-		$Flyover->getUser();
-
-		if ($Flyover->user) {
-
-			// Link him
-			if ($Flyover->linkUser($mybb->user, $Flyover->user['identifier'])) {
-
-				$tempKey = $Flyover->provider . '_settings';
-
-				$user = [
-					$tempKey => $Flyover->getUserSettings()
-				];
-
-				$Flyover->sync($user);
-
-				$Flyover->redirect('usercp.php?action=flyover', $lang->flyover_success_linked_title, $lang->sprintf($lang->flyover_success_linked, $Flyover->provider));
-
-			}
-			else {
-				$mybb->input['action'] = 'flyover';
-				$errors[] = $lang->sprintf($lang->flyover_error_linking, $Flyover->provider);
-			}
-
-		}
-		else {			
-			$errors[] = $lang->flyover_error_noauth;
-		}
-
-	}
-
-	// Unlink user
-	if ($mybb->input['action'] == 'unlink' and $mybb->input['provider']) {
-
-		if (count($Flyover->getUserEnabledProviders()) == 1 and !$mybb->user['email']) {
-			$errors[] = $lang->sprintf($lang->flyover_error_need_to_change_email_password, $Flyover->provider);
-			$mybb->input['action'] = 'flyover';
-		}
-		else {
-
-			$Flyover->unlinkUser();
-			$Flyover->redirect('usercp.php?action=flyover', $lang->flyover_success_unlinked_title, $lang->sprintf($lang->flyover_success_unlinked, $Flyover->provider));
-
-		}
-
-	}
-
-	// Sync
-	if ($mybb->input['action'] == 'sync' and $mybb->input['provider']) {
-
-		$Flyover->authenticate();
-
-		$Flyover->getUser();
-
-		if ($Flyover->user) {
-
-			$tempKey = $Flyover->provider . '_settings';
-
-			$user = [
-				$tempKey => $Flyover->getUserSettings()
-			];
-
-			$Flyover->sync($user);
-
-			$Flyover->redirect('usercp.php?action=flyover', $lang->flyover_success_synced_title, $lang->sprintf($lang->flyover_success_synced, $Flyover->provider));
-
-		}
-		else {
-			$errors[] = $lang->flyover_error_noauth;
-		}
-
-	}
-
-	// Settings page
-	if ($mybb->input['action'] == 'flyover') {
-
-		global $db, $theme, $templates, $headerinclude, $header, $footer, $plugins, $usercpnav;
-
-		add_breadcrumb($lang->nav_usercp, 'usercp.php');
-		add_breadcrumb($lang->flyover_page_title, 'usercp.php?action=flyover');
-
-		$flyoverSettings = $Flyover->readCache('settings', 'enabled');
-
-		if (!$flyoverSettings) {
-			header('Location: usercp.php');
-		}
-
-		ksort($flyoverSettings);
-
-		// The actual connected providers				
-		$query = $db->simple_select('flyover_settings_data', '*', 'uid = ' . (int) $mybb->user['uid'], ['limit' => 1]);
-		$user_connected_providers = (array) $db->fetch_array($query);
-
-		// Update settings
-		if ($mybb->request_method == 'post') {
-
-			verify_post_check($mybb->input['my_post_key']);
-
-			$new_settings = [];
-
-			$settingsSelected = (array) $mybb->input['providers'];
-			$providers = array_keys($flyoverSettings);
-
-			// Loop through the connected providers
-			foreach ($providers as $provider) {
-
-				// Skip if not connected
-				if (!$user_connected_providers[$provider]) {
-					continue;
-				}
-
-				$tempKey = $provider . '_settings';
-
-				foreach ($settingsToCheck as $setting) {
-
-					$new_settings[$tempKey][$setting] = 0;
-
-					if ($settingsSelected[$provider][$setting] == 1) {
-						$new_settings[$tempKey][$setting] = 1;
-					}
-
-				}
-
-			}
-
-			$Flyover->updateUserSettings($new_settings);
-			$Flyover->performUserUpdate();
-
-			$Flyover->redirect('usercp.php?action=flyover', $lang->flyover_success_settings_updated_title, $lang->flyover_success_settings_updated);
-
-		}
-
-		// Errors
-		if ($errors) {
-			$errors = inline_error($errors);
-		}
-		else {
-			unset($errors);
-		}
-
-		// Show main content
-		$options = '';
-
-		// Header
-		if ($user_connected_providers) {
-			eval("\$options_header = \"" . $templates->get("flyover_usercp_settings_header") . "\";");
-		}
-
-		$flyoverUsernames = (array) my_unserialize($user_connected_providers['usernames']);
-		$not_connected = [];
-
-		$buttons = ['sync', 'unlink'];
-
-		// List connected providers
-		foreach ($flyoverSettings as $key => $configuration) {
-
-			// Add to another array if not connected
-			if (!$user_connected_providers[$key]) {
-
-				$not_connected[$key] = $configuration;
-				continue;
-
-			}
-
-			// Build the class
-			$altbg = alt_trow();
-
-			// Popup mode
-			$popupmode = ($mybb->settings['flyover_popup_mode'] and $Flyover->userIsConnectedWith($key) != 1) ? 'fpopup' : '';
-
-			$flyover_setting = (array) $configuration['settings'];
-
-			$tempkey = $key . '_settings';
-			$disconnect = $sync = '';
-
-			// Build the Sync and Disconnect button
-			foreach ($buttons as $button) {
-
-				$querystring = '?action=' . $button;
-
-				$tempKey = 'flyover_settings_' . $button;
-
-				$label = $lang->$tempKey;
-
-				eval("\$$button = \"" . $templates->get("flyover_usercp_settings_button") . "\";");
-
-			}
-
-			// Build the image
-			$temp_image = $mybb->settings['bburl'] . '/images/social/' . strtolower($key) . '.png';
-			$image = '<img src="' . $temp_image . '" class="icon ' . strtolower($key) . '" />';
-
-/*
-			if (@getimagesize($temp_image)) {
-				$image = '<img src="' . $temp_image . '" class="icon ' . strtolower($key) . '" />';
-			}
-*/
-
-			// Build the "Connected with" label
-			$connected_with = '';
-			if ($flyoverUsernames[$key] and $user_connected_providers[$key]) {
-				$connected_with = $lang->sprintf($lang->flyover_settings_connected_with, $flyoverUsernames[$key]);
-			}
-			else if (!$flyoverUsernames[$key] and $user_connected_providers[$key]) {
-				$connected_with = $lang->sprintf($lang->flyover_settings_could_not_fetch, $key);
-			}
-
-			// Build settings
-			$provider_settings = '';
-			$user_settings = (array) my_unserialize($user_connected_providers[$tempkey]);
-
-			foreach ($settingsToCheck as $setting) {
-
-				if (!$flyover_setting[$setting] or (!$mybb->settings['flyover_' . $setting . 'field'] and $setting != 'avatar')) {
-					continue;
-				}
-
-				$checked = ($user_settings[$setting]) ? ' checked' : '';
-
-				// Set up this setting label
-				$tempKey = 'flyover_settings_' . $setting;
-				$label = $lang->$tempKey;
-
-				eval("\$provider_settings .= \"" . $templates->get("flyover_usercp_settings_provider_setting") . "\";");
-
-			}
-
-			eval("\$options .= \"" . $templates->get("flyover_usercp_settings_provider") . "\";");
-
-		}
-
-		// List not connected providers
-		if ($not_connected) {
-
-			$class = $button = '';
-
-			foreach ($not_connected as $key => $configuration) {
-
-				$querystring = '?action=link';
-
-				// Popup mode
-				$popupmode = ($mybb->settings['flyover_popup_mode'] and $Flyover->userIsConnectedWith($key) != 1) ? 'fpopup' : '';
-
-				// Build the image
-				$temp_image = $mybb->settings['bburl'] . '/images/social/' . strtolower($key) . '.png';
-
-// 				$label = (@getimagesize($temp_image)) ? '<img src="' . $temp_image . '" class="icon ' . strtolower($key) . '" />' : $key;
-				$label = '<img src="' . $temp_image . '" class="icon ' . strtolower($key) . '" />';
-
-				eval("\$available_providers .= \"" . $templates->get("flyover_usercp_settings_button") . "\";");
-
-			}
-
-			// Footer
-			eval("\$options_footer = \"" . $templates->get("flyover_usercp_settings_footer") . "\";");
-
-		}
-
-		eval("\$content = \"" . $templates->get('flyover_usercp_settings') . "\";");
-
-		output_page($content);
-
-	}
-}
-
 /**
  * Update the plugin in the ACP and display inline style
  **/
 function flyover_update()
 {
-	global $mybb, $db, $cache, $lang, $inline_style;
+	global $inline_style;
 
-	$file = MYBB_ROOT . "inc/plugins/Flyover/class_update.php";
-
-	if (file_exists($file)) {
-		require_once $file;
-	}
+	new Flyover\Update\Update;
 
 	$inline_style = <<<HTML
 <style type='text/css'>
-	.icon {
-		width: 30px;
-		border-radius: 2px;
+	.flyover.settings {
+		display: inline-block;
+		vertical-align: middle;
+		margin: 10px;
 	}
-	.icon.inactive,
-	.provider_btn.inactive {
+	.flyover .icon {
+	    width: 30px;
+	    height: 30px;
+	    line-height: 30px;
+	    border-radius: 2px;
+	    color: #fff;
+	    text-align: center;
+	    margin: 5px 5px 5px 0;
+	    vertical-align: middle
+	}
+	.flyover .icon.inactive,
+	.flyover .provider.inactive {
 		opacity: .3
-	}
-	*[class*="500px"] {
-		background: #444
-	}
-	.aol,
-	.steam {
-		background: #000
-	}
-	.amazon {
-		background: #ff9900
-	}
-	.beatsmusic {
-		background: #C00045
 	}
 	.bitbucket {
 		background: #205081
-	}
-	.deezer {
-		background: #272727
 	}
 	.discord {
 		background: #7289da
@@ -1037,15 +657,6 @@ function flyover_update()
 	}
 	.dribbble {
 		background: #EA4C89
-	}
-	.dropbox {
-		background: #2281CF
-	}
-	.envato {
-		background: #82b541
-	}
-	.evernote {
-		background: #6BB130
 	}
 	.facebook {
 		background: #3B5998
@@ -1065,51 +676,38 @@ function flyover_update()
 	.instagram {
 		background: #3F729B
 	}
-	.lastfm {
-		background: #D51007
-	}
 	.linkedin {
 		background: #007FB1
 	}
-	.live,
-	.microsoft {
-		background: #3E73B4
+	.mailru {
+		background: #168de2
 	}
-	.paypal {
-		background: #1F356F
-	}
-	.pinterest {
-		background: #bd081c
+	.odnoklassniki {
+		background: #ed812b
 	}
 	.reddit {
 		background: #FF4500
 	}
-	.slack {
-		background: #6ecadc
+	.spotify {
+		background: #1db954
 	}
-	.soundcloud {
-		background: #FF6600
-	}
-	.stackexchange {
+	.stackexchange, .stack-exchange {
 		background: #1F5196
+	}
+	.steam {
+		background: #000
 	}
 	.tumblr {
 		background: #2C4762
 	}
-	.twitchtv {
+	.twitchtv, .twitch {
 		background: #6441A5
 	}
 	.twitter {
 		background: #00ACED
 	}
-	.vimeo {
-		background: #44BBFF
-	}
-	.vkontakte {
+	.vkontakte, .vk {
 		background: #2E9FFF
-	}
-	.wargaming {
-		background: #d2191f
 	}
 	.wordpress {
 		background: #21759B
@@ -1117,14 +715,17 @@ function flyover_update()
 	.yahoo {
 		background: #731A8B
 	}
-	.login_box {
-		display: inline-block;
-	    padding: 10px 15px;
-	    margin: 10px 0;
-	    vertical-align: middle
+	.yandex {
+		background: #FFCC00
 	}
-	.login_box_buttons,
-	.login_box > .provider_btn {
+	.wechat {
+		background: #7bb32e
+	}
+	.windowslive,
+	.windows {
+		background: #3E73B4
+	}
+	.flyover .provider {
 		padding: 5px 8px;
 	    border-radius: 3px;
 	    color: #fff;
@@ -1135,20 +736,12 @@ function flyover_update()
 	    display: block;
 	    line-height: 20px
 	}
-	.login_box > .provider_btn {
+	.flyover .provider {
 		margin: 5px 10px;
 		display: inline-block;
 		min-width: 120px
 	}
-	.login_box_buttons .icon {
-	    width: 20px;
-	    vertical-align: middle
-	}
-	.login_box_icon {
-		vertical-align: middle;
-		margin: 0 3px
-	}
-	.login_box_icon_text {
+	.flyover .iconAndText {
 		vertical-align: middle;
 		margin: 5px 5px 5px 0
 	}
@@ -1161,41 +754,24 @@ HTML;
  **/
 function flyover_settings_footer()
 {
-	global $mybb, $db;
+	global $mybb;
 
-	if ($mybb->input["action"] == "change" and $mybb->request_method != "post") {
+	if ($mybb->input["action"] == "change" and
+		$mybb->request_method != "post" and
+		($mybb->input["gid"] == flyover_settings_gid() or !$mybb->input['gid'])
+		) {
 
-		$gid = flyover_settings_gid();
-
-		if ($mybb->input["gid"] == $gid or !$mybb->input['gid']) {
-
-			if ($mybb->version_code > 1700) {
-				echo '<script type="text/javascript">
-$(document).ready(function() {
-	new Peeker($(".setting_flyover_passwordpm"), $("#row_setting_flyover_passwordpm_subject"), /1/, true);
-	new Peeker($(".setting_flyover_passwordpm"), $("#row_setting_flyover_passwordpm_message"), /1/, true);
-	new Peeker($(".setting_flyover_passwordpm"), $("#row_setting_flyover_passwordpm_fromid"), /1/, true);
-});
-</script>';
-			}
-			else {
-				echo '<script type="text/javascript">
-Event.observe(window, "load", function() {
-	loadFlyoverPeekers();
-});
-function loadFlyoverPeekers()
-{
-	new Peeker($$(".setting_flyover_passwordpm"), $("row_setting_myfbconnect_passwordpm_subject"), /1/, true);
-	new Peeker($$(".setting_flyover_passwordpm"), $("row_setting_myfbconnect_passwordpm_message"), /1/, true);
-	new Peeker($$(".setting_flyover_passwordpm"), $("row_setting_myfbconnect_passwordpm_fromid"), /1/, true);
-}
-</script>';
-			}
-
-		}
+			echo <<<HTML
+<script type="text/javascript">
+	$(document).ready(function() {
+		new Peeker($(".setting_flyover_passwordpm"), $("#row_setting_flyover_passwordpm_subject"), /1/, true);
+		new Peeker($(".setting_flyover_passwordpm"), $("#row_setting_flyover_passwordpm_message"), /1/, true);
+		new Peeker($(".setting_flyover_passwordpm"), $("#row_setting_flyover_passwordpm_fromid"), /1/, true);
+	});
+</script>
+HTML;
 
 	}
-
 }
 
 /**
@@ -1204,11 +780,16 @@ function loadFlyoverPeekers()
 function flyover_settings_gid()
 {
 	global $db;
+	static $gid;
 
-	$query = $db->simple_select("settinggroups", "gid", "name = 'flyover'", [
-		"limit" => 1
-	]);
-	$gid   = (int) $db->fetch_field($query, "gid");
+	if (!$gid) {
+
+		$query = $db->simple_select("settinggroups", "gid", "name = 'flyover'", [
+			"limit" => 1
+		]);
+		$gid   = (int) $db->fetch_field($query, "gid");
+
+	}
 
 	return $gid;
 }
@@ -1270,7 +851,7 @@ function flyover_build_wol_location(&$plugin_array)
 	return $plugin_array;
 }
 
-$GLOBALS['replace_custom_fields'] = flyover_get_active_userfield_list();
+$GLOBALS['replace_custom_fields'] = Flyover\Helper\Utilities::getUserfields();
 
 function flyover_settings_saver()
 {
@@ -1283,11 +864,11 @@ function flyover_settings_saver()
 
 			$child = $setting . 'field';
 
-			$mybb->input['upsetting']['flyover_'.$child] = $mybb->input['flyover_'.$child.'_select'];
+			$mybb->input['upsetting']['flyover_' . $child] = $mybb->input['flyover_'.$child.'_select'];
 
 			// Reset parent field if empty
-			if (!$mybb->input['upsetting']['flyover_'.$child]) {
-				$mybb->input['upsetting']['flyover_'.$setting] = 0;
+			if (!$mybb->input['upsetting']['flyover_' . $child]) {
+				$mybb->input['upsetting']['flyover_' . $setting] = 0;
 			}
 		}
 
@@ -1300,17 +881,21 @@ function flyover_settings_saver()
 function flyover_settings_replacer($args)
 {
 	global $db, $lang, $form, $mybb, $page, $inline_style, $replace_custom_fields;
+	static $profilefields;
 
-	if ($page->active_action != "settings" and $mybb->input['action'] != "change" and $mybb->input['gid'] != flyover_settings_gid()) {
+	if ($page->active_action != "settings" or $mybb->input['action'] != "change" or $mybb->input['gid'] != flyover_settings_gid()) {
 		return false;
 	}
 
-	$query = $db->simple_select('profilefields', 'name, fid');
+	if (!$profilefields) {
 
-	$profilefields = ['' => ''];
+		$profilefields = ['' => ''];
 
-	while ($field = $db->fetch_array($query)) {
-		$profilefields[$field['fid']] = $field['name'];
+		$query = $db->simple_select('profilefields', 'name, fid');
+		while ($field = $db->fetch_array($query)) {
+			$profilefields[$field['fid']] = $field['name'];
+		}
+
 	}
 
 	foreach ($replace_custom_fields as $setting) {
@@ -1347,49 +932,45 @@ function flyover_settings_replacer($args)
 
 	if ($args['row_options']['id'] == 'row_setting_flyover_login_box_type') {
 
-		require_once FLYOVER;
-		$Flyover = new Flyover();
+		$cache = new Flyover\Session\Cache();
+
+		echo PHP_EOL . '<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/brands.css" crossorigin="anonymous">';
+		echo PHP_EOL . '<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/fontawesome.css" crossorigin="anonymous">';
 
 		// Get 3 random providers
-		$flyoverSettings = (array) array_filter($Flyover->readCache('settings'));
+		$settings = (array) array_filter($cache->read('settings'));
 
-		if (!$flyoverSettings) {
-
-			$args['content'] = $lang->flyover_login_box_configure;
-
-			return;
-
+		if (!$settings) {
+			return $args['content'] = $lang->flyover_login_box_configure;
 		}
 
 		// Stick to some defaults if we've got less than 3
-		if (count($flyoverSettings) < 3) {
-			$flyoverSettings['Facebook'] = 'Facebook';
-			$flyoverSettings['Twitter'] = 'Twitter';
-			$flyoverSettings['Google'] = 'Google';
+		if (count($settings) < 3) {
+			$settings = array_flip(['Facebook', 'Twitter', 'Google']);
 		}
 
-		$flyoverSettings = array_rand($flyoverSettings, 3);
+		$settings = array_rand($settings, 3);
 
 		// Build the buttons
-		$login_box_buttons = $login_box_icons = $login_box_icons_text = '';
-		foreach ($flyoverSettings as $key => $file) {
+		$buttons = $icons = $iconsAndText = '';
+		foreach ($settings as $provider) {
 
-			$l_file = strtolower($file);
-			$login_box_buttons .= "<span class='{$l_file} login_box_buttons'><img class='icon' src='../images/social/{$l_file}.png' /> Login with {$file}</span>\n";
-			$login_box_icons .= "<img class='icon {$l_file} login_box_icon' src='../images/social/{$l_file}.png' />\n";
-			$login_box_icons_text .= "<img class='icon {$l_file} login_box_icon_text' src='../images/social/{$l_file}.png' /> Login with {$file}<br />\n";
+			$lowercaseProvider = strtolower($provider);
+			$buttons .= "<span class='provider {$lowercaseProvider}'><i class='fab fa-{$lowercaseProvider}'></i> Login with {$provider}</span>";
+			$icons .= "<i class='icon {$lowercaseProvider} fab fa-{$lowercaseProvider}'></i>";
+			$iconsAndText .= "<span><i class='icon {$lowercaseProvider} fab fa-{$lowercaseProvider}'></i>  Login with {$provider}</span>";
 
 		}
 
 		$arr = [
-			'buttons' => $login_box_buttons,
-			'icons_text' => $login_box_icons_text,
-			'icons' => $login_box_icons
+			'buttons' => $buttons,
+			'icons_text' => $iconsAndText,
+			'icons' => $icons
 		];
 
 		// Replace them
 		foreach ($arr as $find => $replace) {
-			$args['content'] = str_replace($find, '<div class="login_box">' . $replace . '</div>', $args['content']);
+			$args['content'] = str_replace($find, '<div class="flyover settings">' . $replace . '</div>', $args['content']);
 		}
 
 		// Echo the stylesheets
@@ -1421,33 +1002,4 @@ function flyover_admin_config_action_handler($actions)
 	];
 
 	return $actions;
-}
-
-function mybb_get_input($name)
-{
-	global $mybb;
-	if (!isset($mybb->input[$name]) || !is_scalar($mybb->input[$name])) {
-		return '';
-	}
-	return $mybb->input[$name];
-}
-
-function flyover_get_active_userfield_list($excludeProtected = false)
-{
-	$fields = [
-		'avatar',
-		'sex',
-		'bio',
-		'location',
-		'username',
-		'website',
-		'identifier'
-	];
-
-	$protected = [
-		'avatar',
-		'website'
-	];
-
-	return ($excludeProtected) ? array_values(array_diff($fields, $protected)) : $fields;
 }

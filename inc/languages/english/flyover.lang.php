@@ -16,14 +16,13 @@ $l['flyover_error_report'] = "An unknown error occurred. The output of the error
 {1}
 </pre>
 Please report this error to an administrator and try again.";
-$l['flyover_error_report_generated'] = "An error occurred trying to accomplish your request. A bug report has been generated and it's available in the administration panel. If you are not an administrator, contact one as soon as possible and tell him you have landed on this page. You may also try logging in once again and see if it was just a temporary error. Sorry for the inconvenience.";
 $l['flyover_error_already_logged_in'] = "You are already logged into the board.";
-$l['flyover_error_no_id_provided'] = "An unknown error occurred while fetching your data from {1}. Either the plugin was not configured properly to work with {1} or this server doesn't support server-to-server connections over http or https. Please report this error to an administrator.";
-$l['flyover_error_no_provider'] = "You landed on this page without specifying a provider ID. This means you are probably using this feature unconventionally. Please do not attempt to use Flyover features out of their context.";
+$l['flyover_error_no_id_provided'] = "An unknown error occurred while fetching your data from {1}. Please report this error to an administrator.";
+$l['flyover_error_no_provider'] = "You landed on this page without specifying a provider ID. You are probably using this feature unconventionally. Please do not attempt to use Flyover features out of their context.";
 $l['flyover_error_no_user'] = "Flyover couldn't get an authenticated {1} user. Please do not attempt to use Flyover features out of their context.";
 $l['flyover_error_unknown'] = "An unknown error occurred using Flyover.";
 $l['flyover_error_linking'] = "There was an error linking your profile to {1}. Please try again.";
-$l['flyover_error_need_to_change_email_password'] = "You cannot unlink your profile from {1} since it is the last social network associated to your account. You need to <a href='usercp.php?action=email_password'>add an email and a password</a> if you want to unlink your account from {1}.";
+$l['flyover_error_need_to_change_email_password'] = "You cannot unlink your profile from {1} since it is the last social network associated to your account. You need to <a href='usercp.php?action=email_password'>set a password</a> if you want to unlink your account from {1}.";
 $l['flyover_error_function_not_used_correctly'] = "You did not use this function properly. Please go back and try again.";
 
 // Success messages
@@ -56,8 +55,8 @@ $l['flyover_settings_link_providers'] = 'Click on one of the following providers
 
 // Registration page
 $l['flyover_register_title'] = "Register with {1}";
-$l['flyover_register_basic_info'] = "Choose your basic infos on your right. They are already filled with your {1} data, but if you want to change them you are free to do it. The account will be linked to your {1} one immediately, automatically and regardless of your choices.";
-$l['flyover_register_what_to_sync'] = "Select what info we should import from your {1} account. We'll immediately synchronize your desired data making an exact copy of your {1} account, dependently on your choices.";
+$l['flyover_register_basic_info'] = "Choose your basic informations on your right. They are already filled with your {1} data, but you can change them accordingly. Your MyBB account will be linked to your {1}'s automatically.";
+$l['flyover_register_what_to_sync'] = "Select your preferences about data synchronization. You can always change your preferences from your User Control Panel at a later stage.";
 $l['flyover_register_username'] = "Username:";
 $l['flyover_register_email'] = "Email:";
 $l['flyover_register_cannot_fetch_email'] = "<img src='images/error.png' /> We could not fetch your {1} email, so you must specify it manually";
@@ -85,4 +84,4 @@ $l['flyover_viewing_registering'] = "<a href=\"flyover.php?action=register&provi
 $l['flyover_male'] = "Male";
 $l['flyover_female'] = "Female";
 $l['logindata_flyoveremptypassword'] = "You did not enter a password. Please enter one. If your account does not have a password because you registered using a social network, please use the appropriate login links.";
-$l['redirect_email_password_updated'] = "Your email address and your passwords has been successfully updated.<br />You will be now returned to the email settings.";
+$l['redirect_email_password_updated'] = "Your password has been successfully set.<br />You will be now returned to your email settings.";

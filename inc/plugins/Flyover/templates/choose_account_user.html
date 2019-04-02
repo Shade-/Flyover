@@ -1,4 +1,11 @@
-<div data-flyover-id="{$user['uid']}">
-	<img src="{$user['avatar']}" class="avatar" />
-	<h2>{$user['username']}</h2>
+<div>
+	<a href="flyover.php?action=login&provider={$flyover->provider}&uid={$user['uid']}">
+		<img src="{$user['avatar']}" class="avatar" />
+	</a>
+	<h2>
+		<a href="flyover.php?action=login&provider={$flyover->provider}&uid={$user['uid']}">
+			{$user['username']}
+		</a>
+	</h2>
+	<span class="smalltext">{$matchType}</span>
 </div>

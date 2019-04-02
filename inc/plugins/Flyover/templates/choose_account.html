@@ -2,46 +2,26 @@
 	<head>
 		<title>{$lang->flyover_choose_account_title}</title>
 		{$headerinclude}
-		<script type="text/javascript">
-			(function($) {
-				
-				$(document).ready(function() {
-					
-					$('[data-flyover-id]').on('click', function() {
-						
-						var input = $('<input>').attr({'type': 'hidden', 'name': 'uid'}).val($(this).attr('data-flyover-id'));
-						return $(this).parents('form').append(input).submit();
-						
-					});
-					
-				});
-				
-			})(jQuery);
-		</script>
 	</head>
 	<body>
 		{$header}
-		<form action="flyover.php?action=choose_account&provider={$Flyover->provider}" method="post" class="choose-account">
-			<input type="hidden" name="my_post_key" value="{$mybb->post_code}" />
-			<table border="0" cellspacing="{$theme['borderwidth']}" cellpadding="{$theme['tablespace']}" class="tborder">
-				<thead>
-					<tr>
-						<th class="thead" colspan="2">
-							<strong>{$lang->flyover_choose_account_title}</strong>
-						</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td class="trow1">
-							<div class="desc">{$lang->flyover_choose_account_desc}</div>
-							<div class="accounts">{$accounts}</div>
-						</td>
-					</tr>
-				</tbody>
-			</table>
-			<br />
-		</form>
+		<table border="0" cellspacing="{$theme['borderwidth']}" cellpadding="{$theme['tablespace']}" class="tborder">
+			<thead>
+				<tr>
+					<th class="thead" colspan="2">
+						<strong>{$lang->flyover_choose_account_title}</strong>
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td class="trow1 choose-account">
+						<div class="desc">{$lang->flyover_choose_account_desc}</div>
+						<div class="accounts">{$multipleAccounts}</div>
+					</td>
+				</tr>
+			</tbody>
+		</table>
 	 	{$footer}
 	</body>
 </html>

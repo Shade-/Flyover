@@ -1,3 +1,6 @@
+@import url("https://use.fontawesome.com/releases/v5.6.3/css/brands.css");
+@import url("https://use.fontawesome.com/releases/v5.6.3/css/fontawesome.css");
+
 .flyover th {
     text-align: center
 }
@@ -27,9 +30,15 @@
     float: left;
 }
 .flyover .icon {
-    width: 35px;
-    -webkit-border-radius: 3px;
-    border-radius: 3px
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    border-radius: 2px;
+    color: #fff;
+    text-align: center;
+    margin: 5px 5px 5px 0;
+    vertical-align: middle
 }
 .flyover .footer {
     text-align: center
@@ -50,15 +59,8 @@
 .flyover [class*="500px"] {
     background: #444
 }
-.flyover .aol,
-.flyover .steam {
-    background: #000
-}
 .flyover .bitbucket {
     background: #205081
-}
-.flyover .deezer {
-    background: #272727
 }
 .flyover .discord {
     background: #7289DA
@@ -69,12 +71,6 @@
 .flyover .dribbble {
     background: #EA4C89
 }
-.flyover .dropbox {
-    background: #2281CF
-}
-.flyover .evernote {
-    background: #6BB130
-}
 .flyover .facebook {
     background: #3B5998
 }
@@ -84,32 +80,35 @@
 .flyover .github {
     background: #4183C4
 }
+.flyover .gitlab {
+	background: #fc6d26
+}
 .flyover .google {
     background: #245DC1
 }
 .flyover .instagram {
     background: #3F729B
 }
-.flyover .lastfm {
-    background: #D51007
-}
 .flyover .linkedin {
     background: #007FB1
 }
-.flyover .microsoft {
-    background: #3E73B4
+.flyover .mailru {
+	background: #168de2
 }
-.flyover .paypal {
-    background: #1F356F
+.flyover .odnoklassniki {
+	background: #ed812b
 }
 .flyover .reddit {
     background: #FF4500
 }
-.flyover .soundcloud {
-    background: #FF6600
+.flyover .spotify {
+	background: #1db954
 }
 .flyover .stackexchange {
     background: #1F5196
+}
+.flyover .steam {
+    background: #000
 }
 .flyover .tumblr {
     background: #2C4762
@@ -120,17 +119,23 @@
 .flyover .twitter {
     background: #00ACED
 }
-.flyover .vimeo {
-    background: #44BBFF
-}
 .flyover .vkontakte {
     background: #2E9FFF
+}
+.flyover .windowslive {
+    background: #3E73B4
 }
 .flyover .wordpress {
     background: #21759B
 }
 .flyover .yahoo {
     background: #731A8B
+}
+.flyover .yandex {
+	background: #FFCC00
+}
+.flyover .wechat {
+	background: #7bb32e
 }
 .flyover .login_box {
     display: inline-block;
@@ -155,19 +160,6 @@
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     font-weight: 500
-}
-.flyover .login_box_buttons .icon {
-    width: 20px;
-    vertical-align: middle
-}
-.flyover .login_box_icon {
-    vertical-align: middle;
-    margin: 3px;
-    display: inline-block;
-}
-.flyover .login_box_icon_text {
-    vertical-align: middle;
-    margin: 5px 5px 5px 0
 }
 .flyover .login_box_icon_text_wrapper {
     display: inline-block;
