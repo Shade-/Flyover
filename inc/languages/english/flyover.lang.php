@@ -59,6 +59,7 @@ $l['flyover_register_basic_info'] = "Choose your basic informations on your righ
 $l['flyover_register_what_to_sync'] = "Select your preferences about data synchronization. You can always change your preferences from your User Control Panel at a later stage.";
 $l['flyover_register_username'] = "Username:";
 $l['flyover_register_email'] = "Email:";
+$l['flyover_register_email_already_registered'] = "Your {1} email matches the following registered account(s): {2}. It is advised to <a href='member.php?action=login'>log in</a> and link your existing account(s) instead of creating a new one.";
 $l['flyover_register_cannot_fetch_email'] = "<img src='images/error.png' /> We could not fetch your {1} email, so you must specify it manually";
 $l['flyover_register_custom_fields'] = "Please fill the following fields";
 

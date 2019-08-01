@@ -6,7 +6,7 @@
  * @package Flyover
  * @author  Shade <shad3-@outlook.com>
  * @license Copyrighted ©
- * @version 2.0 (update version no only when templates are ready!)
+ * @version 2.1
  */
 
 if (!defined('IN_MYBB')) {
@@ -25,10 +25,10 @@ function flyover_info()
 	return [
 		'name' => 'Flyover',
 		'description' => "Integrates MyBB with many social networks, featuring login and registration.",
-		'website' => 'https://www.mybboost.com',
+		'website' => 'https://www.mybboost.com/forum-flyover',
 		'author' => 'Shade',
 		'authorsite' => 'https://www.mybboost.com',
-		'version' => '2.0',
+		'version' => '2.1',
 		'compatibility' => '16*,18*'
 	];
 }
@@ -499,7 +499,6 @@ function flyover_global()
 	if (THIS_SCRIPT == 'flyover.php') {
 
 		$templatelist[] = 'flyover_register';
-		$templatelist[] = 'flyover_register_email';
 		$templatelist[] = 'flyover_register_settings_setting';
 		$templatelist[] = 'flyover_register_extrafields';
 		$templatelist[] = 'usercp_profile_profilefields_checkbox';
@@ -581,7 +580,7 @@ function flyover_pre_output_page(&$page)
 
 		$name = $provider['provider'];
 		$lowercaseName = strtolower($name);
-		
+
 		// Adjustments for icons
 		if ($name == 'TwitchTV') {
 			$lowercaseName = 'twitch';

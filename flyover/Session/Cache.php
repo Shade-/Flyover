@@ -2,8 +2,8 @@
 
 namespace Flyover\Session;
 
-class Cache {
-
+class Cache
+{
 	protected $prefix;
 
 	public function __construct()
@@ -94,5 +94,4 @@ class Cache {
 
 		return $this->pl->cache_update($this->prefix . $table, $settings);
 	}
-
 }

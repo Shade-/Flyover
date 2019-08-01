@@ -15,12 +15,12 @@ class DeleteProvider extends ActionLoader
 		$providers = $this->cache->read('settings', $this->provider);
 
 		// Drop columns
-		if ($db->field_exists($this->provider, 'flyover_settings_data')) {
-			$db->drop_column('flyover_settings_data', $this->provider);
+		if ($this->db->field_exists($this->provider, 'flyover_settings_data')) {
+			$this->db->drop_column('flyover_settings_data', $this->provider);
 		}
 
-		if ($db->field_exists($this->provider . '_settings', 'flyover_settings_data')) {
-			$db->drop_column('flyover_settings_data', $this->provider . '_settings');
+		if ($this->db->field_exists($this->provider . '_settings', 'flyover_settings_data')) {
+			$this->db->drop_column('flyover_settings_data', $this->provider . '_settings');
 		}
 
 		// Save

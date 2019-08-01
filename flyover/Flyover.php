@@ -133,16 +133,11 @@ class Flyover extends Hybridauth
 	}
 
 	public function getMatchedAccounts(
-		$identifier,
-		$email = ''
-	)
+	    $identifier
+    )
 	{
 		$escapedPlainIdentifier = $this->db->escape_string($identifier);
 		$identifier = md5(md5($identifier).md5($this->provider));
-
-		if ($email) {
-			$extraSql = " OR u.email = '" . $this->db->escape_string($email) . "'";
-		}
 
 		// Multiple accounts – this is set when an account is chosen
 		$uid = (int) $this->mybb->input['uid'];
@@ -161,7 +156,7 @@ class Flyover extends Hybridauth
 			FROM {$prefix}users u
 			LEFT JOIN {$prefix}flyover_users m ON m.uid = u.uid
 			WHERE {$uidCheckStart}m.{$this->provider} = '{$identifier}'
-				OR m.{$this->provider} = '{$escapedPlainIdentifier}'{$extraSql}{$uidCheckEnd}
+				OR m.{$this->provider} = '{$escapedPlainIdentifier}'{$uidCheckEnd}
 SQL;
 		$query = $this->db->write_query($sql);
 
