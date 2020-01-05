@@ -6,7 +6,7 @@
  * @package Flyover
  * @author  Shade <shad3-@outlook.com>
  * @license Copyrighted ©
- * @version 2.1
+ * @version 2.2
  */
 
 if (!defined('IN_MYBB')) {
@@ -28,7 +28,7 @@ function flyover_info()
 		'website' => 'https://www.mybboost.com/forum-flyover',
 		'author' => 'Shade',
 		'authorsite' => 'https://www.mybboost.com',
-		'version' => '2.1',
+		'version' => '2.2',
 		'compatibility' => '16*,18*'
 	];
 }
@@ -113,11 +113,12 @@ function flyover_install()
 			'value' => '0'
 		],
 
-		// Continuous operational state
-		'keeprunning' => [
-			'title' => $lang->setting_flyover_keeprunning,
-			'description' => $lang->setting_flyover_keeprunning_desc,
-			'value' => '0'
+		// Operational state
+		'operational_state' => [
+			'title' => $lang->setting_flyover_operational_state,
+			'description' => $lang->setting_flyover_operational_state_desc,
+			'value' => '1',
+			'optionscode' => "select \n 1=Normal \n 2=Force registration \n 3=Force login \n 4=Force registration and login"
 		],
 
 		// Login box type
@@ -126,13 +127,20 @@ function flyover_install()
 			'description' => $lang->setting_flyover_login_box_type_desc,
 			'value' => '1',
 			'optionscode' => "radio \n 1=buttons \n 2=icons \n 3=icons_text"
+		],
+
+		// Unlink permission
+		'unlink' => [
+			'title' => $lang->setting_flyover_unlink,
+			'description' => $lang->setting_flyover_unlink_desc,
+			'value' => '1'
 		]
 
 	];
 
 	// Get custom userfields to add to the db
-	$customFields = Flyover\Helper\Utilities::getUserfields();
-	foreach ($customFields as $field) {
+	$customProfileFields = Flyover\Helper\Utilities::getUserfields();
+	foreach ($customProfileFields as $field) {
 
 		if (in_array($field, ['avatar', 'website'])) {
 			continue;
@@ -294,12 +302,14 @@ if ($mybb->settings['flyover_enabled']) {
 	$plugins->add_hook('usercp_menu', 'flyover_usercp_menu', 40);
 	$plugins->add_hook('usercp_start', 'flyover_usercp');
 
-	// Datahandler for email&passwordless hack
+	// Passwordless hack, operational state
 	$plugins->add_hook('datahandler_user_validate', 'flyover_user_validate');
+	$plugins->add_hook('datahandler_login_validate_start', 'flyover_login_validate');
 	$plugins->add_hook('usercp_start', 'flyover_usercp_email_password');
 	$plugins->add_hook('usercp_email', 'flyover_usercp_email_password_redirect');
 	$plugins->add_hook('usercp_password', 'flyover_usercp_email_password_redirect');
-	$plugins->add_hook('datahandler_login_verify_password_start', 'flyover_user_validate_login');
+	$plugins->add_hook('datahandler_login_verify_password_start', 'flyover_login_verify_password');
+
 	$plugins->add_hook('member_start', 'flyover_lang_load');
 
 	// Who's Online
@@ -334,7 +344,7 @@ function flyover_user_delete()
 }
 
 // Block empty passwords and usernames
-function flyover_user_validate_login(&$data)
+function flyover_login_verify_password(&$data)
 {
 	if (empty(trim($data['this']->data['password']))) {
 		$data['this']->set_error('flyoveremptypassword');
@@ -354,7 +364,14 @@ function flyover_lang_load()
 
 function flyover_user_validate(&$data)
 {
-	global $mybb;
+	global $mybb, $lang;
+
+    // Block registrations through normal means
+    if (in_array($mybb->settings['flyover_operational_state'], [2,4])
+        and $mybb->input['action'] != 'do_email_password'
+        and THIS_SCRIPT != 'flyover.php') {
+        return $data->set_error($lang->flyover_error_forced_registration);
+    }
 
 	// Fixes https://www.mybboost.com/thread-about-the-pw-username-issue
 	if ($mybb->settings['flyover_passwordless']
@@ -374,6 +391,16 @@ function flyover_user_validate(&$data)
 		return $data;
 
 	}
+}
+
+function flyover_login_validate(&$data)
+{
+	global $mybb, $lang;
+
+    // Block logging in through normal means
+    if (in_array($mybb->settings['flyover_operational_state'], [3,4])) {
+        return $data->set_error($lang->flyover_error_forced_login);
+    }
 }
 
 function flyover_usercp()
@@ -556,7 +583,7 @@ function flyover_pre_output_page(&$page)
 {
 	global $mybb, $lang, $templates;
 
-	$cache = new Flyover\Session\Cache();
+	$cache = new Flyover\Session\Cache;
 
 	// Build login links
 	$providers = $cache->read('settings', 'enabled');
@@ -645,6 +672,10 @@ function flyover_update()
 	.flyover .provider.inactive {
 		opacity: .3
 	}
+	.amazon {
+		background: #FF9900;
+		color: #000!important
+	}
 	.bitbucket {
 		background: #205081
 	}
@@ -715,7 +746,8 @@ function flyover_update()
 		background: #731A8B
 	}
 	.yandex {
-		background: #FFCC00
+		background: #FFCC00;
+		color: #000!important
 	}
 	.wechat {
 		background: #7bb32e
@@ -850,16 +882,16 @@ function flyover_build_wol_location(&$plugin_array)
 	return $plugin_array;
 }
 
-$GLOBALS['replace_custom_fields'] = Flyover\Helper\Utilities::getUserfields();
+$GLOBALS['customProfileFields'] = Flyover\Helper\Utilities::getUserfields();
 
 function flyover_settings_saver()
 {
-	global $mybb, $page, $replace_custom_fields;
+	global $mybb, $page, $customProfileFields;
 
 	if ($mybb->request_method == "post" and $mybb->input['upsetting'] and $page->active_action == "settings" and $mybb->input['gid'] == flyover_settings_gid()) {
 
 		// Custom fields casting
-		foreach ($replace_custom_fields as $setting) {
+		foreach ($customProfileFields as $setting) {
 
 			$child = $setting . 'field';
 
@@ -879,7 +911,7 @@ function flyover_settings_saver()
 
 function flyover_settings_replacer($args)
 {
-	global $db, $lang, $form, $mybb, $page, $inline_style, $replace_custom_fields;
+	global $db, $lang, $form, $mybb, $page, $inline_style, $customProfileFields;
 	static $profilefields;
 
 	if ($page->active_action != "settings" or $mybb->input['action'] != "change" or $mybb->input['gid'] != flyover_settings_gid()) {
@@ -897,7 +929,7 @@ function flyover_settings_replacer($args)
 
 	}
 
-	foreach ($replace_custom_fields as $setting) {
+	foreach ($customProfileFields as $setting) {
 
 		if ($args['row_options']['id'] == 'row_setting_flyover_' . $setting . 'field') {
 
@@ -931,7 +963,7 @@ function flyover_settings_replacer($args)
 
 	if ($args['row_options']['id'] == 'row_setting_flyover_login_box_type') {
 
-		$cache = new Flyover\Session\Cache();
+		$cache = new Flyover\Session\Cache;
 
 		echo PHP_EOL . '<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/brands.css" crossorigin="anonymous">';
 		echo PHP_EOL . '<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/fontawesome.css" crossorigin="anonymous">';

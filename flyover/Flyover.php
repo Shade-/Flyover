@@ -4,14 +4,13 @@
  * Integrates MyBB with many social networks, featuring login and registration.
  *
  * @package Main API class
- * @version 2.0
+ * @version 2.2
  */
 
 namespace Flyover;
 
 include 'Hybridauth/autoload.php';
 
-use Flyover\Session\Cache;
 use Flyover\User\UserInterface;
 use Flyover\User\User;
 use Flyover\User\Usergroup;
@@ -35,7 +34,6 @@ class Flyover extends Hybridauth
 	{
 		$this->traitConstruct();
 
-		$this->cache = new Cache;
 		$this->user = new User;
 		$this->usergroup = new Usergroup;
 
@@ -43,52 +41,50 @@ class Flyover extends Hybridauth
 			$this->lang->load('flyover');
 		}
 
-		if ($this->provider) {
+        // Configure and load HybridAuth
+		if ($this->provider and $this->settings) {
 
-			$configuration = [
+			$environment = [
 				'callback' => $this->mybb->settings['bburl'] . '/flyover.php?action=login&provider=' . $this->provider,
 				'providers' => []
 			];
 
-			$settings = $this->cache->read('settings');
-			$setting = $settings[$this->provider];
+			$currentProviderSettings = $this->settings[$this->provider];
 
 			$keys = [];
 
 			if ($setting['id']) {
-				$keys['id'] = $setting['id'];
+				$keys['id'] = $currentProviderSettings['id'];
 			}
 
 			if ($setting['key_token']) {
-				$keys['key'] = $setting['key_token'];
+				$keys['key'] = $currentProviderSettings['key_token'];
 			}
 
 			if ($setting['secret']) {
-				$keys['secret'] = $setting['secret'];
+				$keys['secret'] = $currentProviderSettings['secret'];
 			}
 
-			if ($keys or $setting['enabled']) {
+			if ($keys or $currentProviderSettings['enabled']) {
 
-				$configuration['providers'][$this->provider] = [
+				$environment['providers'][$this->provider] = [
 					'keys' => $keys,
 					'enabled' => true
 				];
 
 				// Provider-specific adjustments
 				if ($this->provider == 'Facebook') {
-					$configuration['providers'][$this->provider]['trustForwarded'] = false;
+					$environment['providers'][$this->provider]['trustForwarded'] = false;
 				}
 
 				// Custom scopes
-				if ($setting['scopes']) {
-					$configuration['providers'][$this->provider]['scope'] = $setting['scopes'];
+				if ($currentProviderSettings['scopes']) {
+					$environment['providers'][$this->provider]['scope'] = $currentProviderSettings['scopes'];
 				}
 
 			}
 
-			$this->providerSettings = $setting;
-			$this->settings = $this->providerSettings['settings'];
-			$this->config = $configuration;
+			$this->config = $environment;
 
 			if ($this->mybb->input['debug']) {
 				$this->logger = new Logger('debug', MYBB_ROOT . 'flyover/error.log');

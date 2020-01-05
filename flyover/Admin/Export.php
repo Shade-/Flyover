@@ -11,7 +11,6 @@ class Export
 	public function __construct()
 	{
 		$this->traitConstruct();
-		$this->cache = new Cache();
 
 		$xml = "<?xml version=\"1.0\" encoding=\"{$this->lang->settings['charset']}\"?".">\r\n";
 		$xml .= "<settings name=\"Flyover\" version=\"".$this->mybb->version_code."\">\r\n";

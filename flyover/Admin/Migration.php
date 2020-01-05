@@ -8,7 +8,7 @@ class Migration
 
 	public function __construct()
 	{
-		$this->traitConstruct(['cache', 'page', 'sub_tabs']);
+		$this->traitConstruct(['page', 'sub_tabs']);
 
 		$allowedPlugins = [
 			'myfbconnect.php' => [
@@ -109,30 +109,30 @@ class Migration
 					$ext = get_extension($file);
 
 					if ($ext == "php" and in_array($file, array_keys($allowedPlugins))) {
-						$plugins_list[] = $file;
+						$pluginsList[] = $file;
 					}
 
 				}
 
-				@sort($plugins_list);
+				@sort($pluginsList);
 
 			}
 
 			@closedir($dir);
 
-			$codenames = $this->cache->read('plugins');
-			$active_plugins = $codenames['active'];
+			$codenames = $GLOBALS['cache']->read('plugins');
+			$activePlugins = $codenames['active'];
 
 			$active = false;
 
-			if ($plugins_list) {
+			if ($pluginsList) {
 
-				foreach ($plugins_list as $plugin) {
+				foreach ($pluginsList as $plugin) {
 
 					require_once MYBB_ROOT . "inc/plugins/" . $plugin;
 					$codename = str_replace('.php', '', $plugin);
 
-					if (!$active_plugins[$codename]) {
+					if (!$activePlugins[$codename]) {
 						continue;
 					}
 

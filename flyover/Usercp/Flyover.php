@@ -3,7 +3,6 @@
 namespace Flyover\Usercp;
 
 use Flyover\Flyover as Main;
-use Flyover\Session\Cache;
 use Flyover\Session\Redirect;
 use Flyover\Helper;
 use Flyover\User\Update;
@@ -18,14 +17,13 @@ class Flyover extends Usercp
 		$this->traitConstruct();
 
 		$flyover = new Main();
-		$cache = new Cache();
 
 		global $theme, $templates, $headerinclude, $header, $footer, $usercpnav;
 
 		add_breadcrumb($this->lang->nav_usercp, 'usercp.php');
 		add_breadcrumb($this->lang->flyover_page_title, 'usercp.php?action=flyover');
 
-		$activeProviders = $cache->read('settings', 'enabled');
+		$activeProviders = $this->cache->read('settings', 'enabled');
 
 		if (!$activeProviders) {
 
@@ -107,8 +105,6 @@ class Flyover extends Usercp
 
 		$usernames = (array) my_unserialize($connectedProviders['usernames']);
 		$providersToLink = [];
-
-		$buttons = ['sync', 'unlink'];
 
 		// List connected providers
 		foreach ($activeProviders as $provider => $configuration) {

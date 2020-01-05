@@ -101,7 +101,7 @@ class Import
 							$options['settings'] = my_unserialize($options['settings']);
 
 							// Rebuild internal settings
-							$fcache->update('settings', $provider['attributes']['name'], $options);
+							$this->cache->update('settings', $provider['attributes']['name'], $options);
 
 							// Rebuild users table
 							if ($options['enabled']) {

@@ -47,7 +47,7 @@ class Update
         global $PL;
 
         $newSettings = $dropSettings = [];
-        $updateTemplates = $updateFieldSettings = 0;
+        $updateTemplates = $updateFieldSettings = $updateStylesheets = 0;
 
         // Get the gid
         $query = $this->db->simple_select("settinggroups", "gid", "name='flyover'");
@@ -156,6 +156,40 @@ class Update
 
         }
 
+        // 2.2
+        if (version_compare($this->oldVersion, '2.2', "<")) {
+
+            if ($this->db->table_exists('flyover_settings') and !$this->db->field_exists('customfields', 'flyover_settings')) {
+                $this->db->add_column('flyover_settings', 'customfields', 'TEXT AFTER settings');
+            }
+
+            $dropSettings[] = 'keeprunning';
+
+            $newSettings[] = [
+                "name" => "flyover_operational_state",
+                "title" => $this->db->escape_string($this->lang->setting_flyover_operational_state),
+                "description" => $this->db->escape_string($this->lang->setting_flyover_operational_state_desc),
+                "optionscode" => "select \n 1=Normal \n 2=Force registration \n 3=Force login \n 4=Force registration and login",
+                "value" => 1,
+                "disporder" => 9,
+                "gid" => $gid
+            ];
+
+            $newSettings[] = [
+                "name" => "flyover_unlink",
+                "title" => $this->db->escape_string($this->lang->setting_flyover_unlink),
+                "description" => $this->db->escape_string($this->lang->setting_flyover_unlink_desc),
+                "optionscode" => "yesno",
+                "value" => 1,
+                "disporder" => 11,
+                "gid" => $gid
+            ];
+
+            $updateFieldsSettings = 1;
+            $updateStylesheets = 1;
+
+        }
+
         if ($updateFieldsSettings) {
 
             $i = 100;
@@ -190,12 +224,12 @@ class Update
 
         }
 
-        if ($newSettings) {
-            $this->db->insert_query_multiple('settings', $newSettings);
-        }
-
         if ($dropSettings) {
             $this->db->delete_query('settings', "name IN ('flyover_". implode("','flyover_", $dropSettings) ."')");
+        }
+
+        if ($newSettings) {
+            $this->db->insert_query_multiple('settings', $newSettings);
         }
 
         rebuild_settings();
@@ -214,6 +248,17 @@ class Update
             }
 
             $PL->templates('flyover', 'Flyover', $templates);
+
+        }
+
+        if ($updateStylesheets) {
+
+            $PL or require_once PLUGINLIBRARY;
+
+            $stylesheet = file_get_contents(
+        		dirname(dirname(dirname(__FILE__))) . '/inc/plugins/Flyover/stylesheets/flyover.css'
+        	);
+        	$PL->stylesheet('flyover.css', $stylesheet);
 
         }
 

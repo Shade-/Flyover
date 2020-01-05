@@ -28,7 +28,7 @@ if (!$mybb->settings['flyover_enabled']) {
 }
 
 // Registrations are disabled
-if ($mybb->settings['disableregs'] == 1 and !$mybb->settings['flyover_keeprunning']) {
+if ($mybb->settings['disableregs'] == 1) {
 
     if (!$lang->registrations_disabled) {
         $lang->load("member");
@@ -42,6 +42,8 @@ if ($mybb->settings['disableregs'] == 1 and !$mybb->settings['flyover_keeprunnin
 if (!in_array($mybb->input['action'], explode(',', ALLOWABLE_PAGE))) {
     $mybb->input['action'] = 'login';
 }
+
+$settingsToAdd = [];
 
 // Begin the authenticating process
 if ($mybb->input['action'] == 'login') {
@@ -94,14 +96,16 @@ if ($mybb->input['action'] == 'login') {
                 verify_post_check($mybb->input['my_post_key']);
             }
 
-            $settingsToAdd = [];
             $settingsToCheck = Helper\Utilities::getUserfields();
 
             foreach ($settingsToCheck as $setting) {
 
                 // !isset() is normal. If fast registration is on, $mybb->input won't be populated.
                 // We default to 1.
-                if ($mybb->input[$setting] == 1 or !isset($mybb->input[$setting])) {
+                if (
+                    $mybb->input[$setting] == 1 or 
+                    (!isset($mybb->input[$setting]) and $mybb->settings['flyover_fastregistration'])
+                ) {
                     $settingsToAdd[$setting] = 1;
                 }
                 else {
@@ -109,10 +113,6 @@ if ($mybb->input['action'] == 'login') {
                 }
 
             }
-
-            $settingsToAdd = [
-                $flyover->provider . '_settings' => $settingsToAdd
-            ];
 
             $username = ($mybb->input['name']) ? $mybb->input['name'] : $profile->displayName;
             $email = ($mybb->input['email']) ? $mybb->input['email'] : $profile->email;
@@ -126,18 +126,16 @@ if ($mybb->input['action'] == 'login') {
                     'profile_fields' => $mybb->input['profile_fields']
                 ]);
 
+                // Merging this now will allow synchronization later on
+                $attempt = array_merge($attempt, [$flyover->provider . '_settings' => $settingsToAdd]);
+
                 $accounts = [$attempt];
-
-                $update = new Update($attempt);
-
-                $update->settings($settingsToAdd);
-                $update->finalize();
 
                 $message = $lang->sprintf($lang->flyover_redirect_registered, $flyover->provider);
 
             }
             catch (\Exception $e) {
-                $errors = $e->getMessage();
+                $errors = explode('###', $e->getMessage());
             }
 
         }
@@ -371,10 +369,10 @@ if ($mybb->input['action'] == 'login') {
 
             foreach ($settingsToCheck as $setting) {
 
-                if ($flyover->settings[$setting]) {
+                if ($flyover->settings[$flyover->provider]['settings'][$setting]) {
 
                     $tempKey = 'flyover_settings_' . $setting;
-                    $checked = " checked=\"checked\"";
+                    $checked = ($mybb->input[$setting] or $mybb->request_method != 'post') ? " checked=\"checked\"" : '';
 
                     $label = $lang->$tempKey;
                     $altbg = alt_trow();
@@ -493,6 +491,11 @@ if ($mybb->input['action'] == 'login') {
     // update it [versions affected: 1.0, 1.1]
     else if ($account[$flyover->provider] == $profile->identifier) {
         $flyover->user->update->loginIdentifier($profile->identifier);
+    }
+
+    // Add sync options
+    if ($settingsToAdd) {
+        $flyover->user->update->settings($settingsToAdd);
     }
 
     $title = $lang->sprintf($lang->flyover_redirect_title, $account['username']);

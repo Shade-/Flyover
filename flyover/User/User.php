@@ -2,7 +2,6 @@
 
 namespace Flyover\User;
 
-use Flyover\Session\Cache;
 use Flyover\Helper;
 
 class User
@@ -20,11 +19,8 @@ class User
 	{
 		$this->traitConstruct();
 
-		$this->cache = new Cache;
-
-		$settings = $this->cache->read('settings');
-		$this->providerSettings = $settings[$this->provider];
-		$this->settings = $this->providerSettings['settings'];
+		$this->providerSettings = $this->settings[$this->provider];
+		$this->syncOptions = $this->providerSettings['settings'];
 
 		$this->get = new Collect($user);
 
@@ -57,13 +53,15 @@ class User
 		}
 
 		// Get this provider's settings for the current user
-		$userSettings = (array) my_unserialize($this->user[$this->provider . '_settings']);
+		$userSettings = !is_array($this->user[$this->provider . '_settings'])
+		    ? (array) my_unserialize($this->user[$this->provider . '_settings'])
+		    : $this->user[$this->provider . '_settings'];
 
 		$this->update->customFieldsIdentifier();
 		$this->update->providerUsername($profile->displayName);
 
 		// Avatar and cover
-		if ($this->settings['avatar'] and $userSettings['avatar']) {
+		if ($this->syncOptions['avatar'] and $userSettings['avatar']) {
 
 			$this->update->avatar($profile->photoURL);
 
@@ -74,7 +72,7 @@ class User
 		}
 
 		// Sex
-		if ($this->settings['sex'] and $userSettings['sex']) {
+		if ($this->syncOptions['sex'] and $userSettings['sex']) {
 
 			if ($profile->gender == "male") {
 				$this->update->standardField('sex', $this->lang->flyover_male);
@@ -91,21 +89,21 @@ class User
 			'location' => $profile->country,
 			'website' => $profile->webSiteURL,
 			'identifier' => $profile->identifier,
-			'language' => $profile->language
-
+			'language' => $profile->language,
+			'email' => $profile->email,
+			'profileurl' => $profile->profileURL
 		];
 
 		foreach ($standardFields as $name => $value) {
 
-			if ($this->settings[$name] and $userSettings[$name]) {
+			if ($this->syncOptions[$name] and $userSettings[$name]) {
 				$this->update->standardField($name, $value);
 			}
 
 		}
 
 		// Finally update
-		$this->update->finalize();
-
+		return $this->update->finalize();
 	}
 
 	public function register($user = [])

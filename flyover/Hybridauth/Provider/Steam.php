@@ -33,7 +33,7 @@ class Steam extends OpenID
     /**
     * {@inheritdoc}
     */
-    protected $openidIdentifier = 'https://steamcommunity.com/openid';
+    protected $openidIdentifier = 'http://steamcommunity.com/openid';
 
     /**
     * {@inheritdoc}
@@ -44,7 +44,7 @@ class Steam extends OpenID
 
         $userProfile = $this->storage->get($this->providerId . '.user');
 
-        $userProfile->identifier = str_ireplace('https://steamcommunity.com/openid/id/', '', $userProfile->identifier);
+        $userProfile->identifier = str_ireplace(array('http://steamcommunity.com/openid/id/', 'https://steamcommunity.com/openid/id/'), '', $userProfile->identifier);
 
         if (! $userProfile->identifier) {
             throw new UnexpectedApiResponseException('Provider API returned an unexpected response.');
@@ -76,11 +76,16 @@ class Steam extends OpenID
     }
 
     /**
-    * Fetch user profile on Steam web API
-    */
+     * Fetch user profile on Steam web API
+     *
+     * @param $apiKey
+     * @param $steam64
+     *
+     * @return array
+     */
     public function getUserProfileWebAPI($apiKey, $steam64)
     {
-        $apiUrl = 'https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=' . $apiKey . '&steamids=' . $steam64;
+        $apiUrl = 'http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=' . $apiKey . '&steamids=' . $steam64;
 
         $response = $this->httpClient->request($apiUrl);
 
@@ -102,13 +107,15 @@ class Steam extends OpenID
     }
 
     /**
-    * Fetch user profile on community API
-    */
+     * Fetch user profile on community API
+     * @param $steam64
+     * @return array
+*/
     public function getUserProfileLegacyAPI($steam64)
     {
         libxml_use_internal_errors(false);
 
-        $apiUrl = 'https://steamcommunity.com/profiles/' . $steam64 . '/?xml=1';
+        $apiUrl = 'http://steamcommunity.com/profiles/' . $steam64 . '/?xml=1';
 
         $response = $this->httpClient->request($apiUrl);
 

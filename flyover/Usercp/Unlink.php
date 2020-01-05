@@ -2,7 +2,6 @@
 
 namespace Flyover\Usercp;
 
-use Flyover\Session\Cache;
 use Flyover\User\User;
 use Flyover\User\Usergroup;
 
@@ -11,6 +10,11 @@ class Unlink extends Usercp
 	public function __construct()
 	{
 		$this->traitConstruct();
+
+        // Unlinking is disabled
+		if (!$this->mybb->settings['flyover_unlink']) {
+			throw new \Exception($this->lang->flyover_error_unlinking_is_disabled);
+		}
 
 		$user = new User($this->mybb->user);
 
@@ -29,16 +33,13 @@ class Unlink extends Usercp
 			}
 
 			// Leave usergroup if this is the last linked provider
-			$cache = new Cache();
+			$currentProviderSettings = $this->settings[$this->provider];
 
-			$settings = $cache->read('settings');
-			$setting = $settings[$this->provider];
-
-			$gid = (int) $setting['usergroup'] ?? (int) $this->mybb->settings['flyover_usergroup'];
+			$gid = (int) $currentProviderSettings['usergroup'] ?? (int) $this->mybb->settings['flyover_usergroup'];
 
 			if ($gid) {
 
-				$usergroup = new Usergroup();
+				$usergroup = new Usergroup;
 				$usergroup->leave($gid);
 
 			}

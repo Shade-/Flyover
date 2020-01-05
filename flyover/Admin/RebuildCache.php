@@ -2,8 +2,6 @@
 
 namespace Flyover\Admin;
 
-use Flyover\Session\Cache;
-
 class RebuildCache
 {
 	use \Flyover\Helper\MybbTrait;
@@ -11,7 +9,6 @@ class RebuildCache
 	public function __construct()
 	{
 		$this->traitConstruct(['page', 'sub_tabs']);
-		$this->cache = new Cache();
 
 		if ($this->mybb->request_method == 'post') {
 

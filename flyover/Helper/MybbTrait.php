@@ -2,8 +2,10 @@
 
 namespace Flyover\Helper;
 
-trait MybbTrait {
+use Flyover\Session\Cache;
 
+trait MybbTrait
+{
 	public $mybb;
 	public $lang;
 	public $db;
@@ -32,6 +34,13 @@ trait MybbTrait {
 		}
 
 		$this->provider = htmlspecialchars_uni($this->mybb->input['provider']);
-	}
 
+		// Avoid overwriting
+		if (!in_array('cache', $extra)) {
+
+    		$this->cache = new Cache;
+			$this->settings = $this->cache->read('settings');
+
+		}
+	}
 }

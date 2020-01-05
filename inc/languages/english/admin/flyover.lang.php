@@ -27,30 +27,36 @@ $l['setting_flyover_login_box_type'] = "Login box style";
 $l['setting_flyover_login_box_type_desc'] = "Choose the style you want the login box to appear. You can add <b>&lt;flyover_login_box&gt;</b> wherever you want in your theme's templates and it will be replaced with the login box. Big buttons work best when you use few providers. If you use more than 4-5 providers, it is recommended to switch this to icons only.";
 $l['setting_flyover_passwordless'] = "Passwordless mode";
 $l['setting_flyover_passwordless_desc'] = "Enable this option to let your users register without a password, which IS NOT generated, so you must adjust the sent PM accordingly. When the user will unlink from his last provider he will be asked to set a password if not already set.";
-$l['setting_flyover_keeprunning'] = "Force operational status";
-$l['setting_flyover_keeprunning_desc'] = "Enable this option to let Flyover run even if registrations are disabled. This is particularly useful if you want to allow new registrations only with social networks.";
+$l['setting_flyover_operational_state'] = "Operational status";
+$l['setting_flyover_operational_state_desc'] = "Choose how the board should react to new registrations or logins. You can force either login or registrations through social networks, or both. If users are forced to login or register through social networks and they try to use the standard forms, they will be presented an error.";
+$l['setting_flyover_unlink'] = "Allow unlinking";
+$l['setting_flyover_unlink_desc'] = "Enable this option to let users unlink their accounts from providers in their User Control Panel.";
 
 // Custom fields
 $l['setting_flyover_locationfield'] = "Location Custom Profile Field";
-$l['setting_flyover_locationfield_desc'] = "Select the Custom Profile Field that will be filled with providers' location.";
-$l['setting_flyover_biofield'] = "Biography Custom Profile Field";
-$l['setting_flyover_biofield_desc'] = "Select the Custom Profile Field that will be filled with providers' biography.";
-$l['setting_flyover_sexfield'] = "Sex Custom Profile Field";
-$l['setting_flyover_sexfield_desc'] = "Select the Custom Profile Field that will be filled with providers' sex.";
-$l['setting_flyover_usernamefield'] = "Username Custom Profile Field";
-$l['setting_flyover_usernamefield_desc'] = "Select the Custom Profile Field that will be filled with providers' username.";
-$l['setting_flyover_websitefield'] = "Website Custom Profile Field";
-$l['setting_flyover_websitefield_desc'] = "Select the Custom Profile Field that will be filled with providers' website.";
-$l['setting_flyover_identifierfield'] = "Identifier Custom Profile Field";
-$l['setting_flyover_identifierfield_desc'] = "Select the Custom Profile Field that will be filled with providers' identifier. <b>Note that usually you should NOT expose users identifiers in public places, although this does not pose any security threat.</b> Some providers might have third party libraries intended to work with their identifiers. Flyover lets you store the plain identifier into a Custom Profile Field which you can handle as you wish. Note that Flyover uses a separate database table to store the hashed identifier which is used to authenticate users.";
-$l['setting_flyover_languagefield'] = "Language Custom Profile Field";
-$l['setting_flyover_languagefield_desc'] = "Select the Custom Profile Field that will be filled with providers' language.";
+$l['setting_flyover_locationfield_desc'] = "Select the Custom Profile Field that will be filled with the providers' location.";
+$l['setting_flyover_biofield'] = "Biography CPF";
+$l['setting_flyover_biofield_desc'] = "Select the Custom Profile Field that will be filled with the providers' biography.";
+$l['setting_flyover_sexfield'] = "Sex CPF";
+$l['setting_flyover_sexfield_desc'] = "Select the Custom Profile Field that will be filled with the providers' sex.";
+$l['setting_flyover_usernamefield'] = "Username CPF";
+$l['setting_flyover_usernamefield_desc'] = "Select the Custom Profile Field that will be filled with the providers' username.";
+$l['setting_flyover_websitefield'] = "Website CPF";
+$l['setting_flyover_websitefield_desc'] = "Select the Custom Profile Field that will be filled with the providers' website.";
+$l['setting_flyover_identifierfield'] = "Identifier CPF";
+$l['setting_flyover_identifierfield_desc'] = "Select the Custom Profile Field that will be filled with the providers' identifier. <b>Note that usually you should NOT expose users identifiers in public places, although this does not pose any security threat.</b> Some providers might have third party libraries intended to work with their identifiers. Flyover lets you store the plain identifier into a Custom Profile Field which you can handle as you wish. Note that Flyover uses a separate database table to store the hashed identifier which is used to authenticate users.";
+$l['setting_flyover_languagefield'] = "Language CPF";
+$l['setting_flyover_languagefield_desc'] = "Select the Custom Profile Field that will be filled with the providers' language.";
+$l['setting_flyover_emailfield'] = "Email CPF";
+$l['setting_flyover_emailfield_desc'] = "Select the Custom Profile Field that will be filled with the providers' email. <b>Note that the email will not override the account email; this serves as a separate field</b>.";
+$l['setting_flyover_profileurlfield'] = "Profile URL CPF";
+$l['setting_flyover_profileurlfield_desc'] = "Select the Custom Profile Field that will be filled with the providers' profile URL.";
 
 // Default PM text
 $l['flyover_default_passwordpm_subject'] = "New password";
 $l['flyover_default_passwordpm_message'] = "Welcome on our Forums, dear {user}!
 
-We appreciate that you have registered with {provider}. We have generated a random password for you which you should take note somewhere if you would like to change your personal infos. We require for security reasons that you specify your password when you change things such as the email, your username and the password itself, so keep it secret!
+We appreciate that you have registered with {provider}. We have generated a random password for you which you should take note somewhere if you would like to change your personal details. We require for security reasons that you specify your password when you change sensitive information such as your email, your username and the password itself, so keep it secret!
 
 Your password is: [b]{password}[/b]
 
@@ -106,36 +112,45 @@ $l['flyover_setup_key'] = "Key Token";
 $l['flyover_setup_key_desc'] = "Specify the Key token for this provider.";
 $l['flyover_setup_openid'] = "Powered by OpenID";
 $l['flyover_setup_openid_desc'] = "This provider is powered by OpenID, an identification service that allows users to be authenticated without the need to register an application and messing around with tokens.";
-$l['flyover_setup_usergroup'] = $l['setting_flyover_usergroup'] = "After registration usergroup";
-$l['flyover_setup_usergroup_desc'] = $l['setting_flyover_usergroup_desc'] = "Select the after-registration usergroup. The user will be inserted directly into this usergroup upon registering. Also, if an existing user links his account to this provider, this usergroup will be added to his additional groups list.";
+$l['flyover_setup_usergroup'] = $l['setting_flyover_usergroup'] = "Post-registration usergroup";
+$l['flyover_setup_usergroup_desc'] = $l['setting_flyover_usergroup_desc'] = "Select the post-registration usergroup. The user will be inserted directly into this usergroup upon registering. Also, if an existing user links his account to this provider, this usergroup will be added to his additional groups list.";
 $l['flyover_setup_sync_options'] = "Synchronization options";
 $l['flyover_setup_redirect_uri'] = "Redirect URI";
 $l['flyover_setup_redirect_uri_desc'] = "Whilst creating a new application on <b>{1}</b>, use this value as the redirect URI, if and when asked.";
 $l['flyover_setup_redirect_uri_alternative'] = "<br><br><span class='smalltext'>If the URI above does not work or is rejected, please try to use:</span><br><br>{1}/flyover.php";
 $l['flyover_setup_scopes'] = "Scopes";
 $l['flyover_setup_scopes_desc'] = "Overwrite the scopes of this provider which will be sent upon authentication requests. Check the provider's API documentation to know the available scopes. Note that some providers require scopes to be separated by comas, some with spaces, some with comas and spaces. Always refer to the API docs if unsure. If you don't know what scopes are, do not add anything to this value unless told you so.";
-$l['flyover_setup_avatar'] = $l['setting_flyover_avatar'] = "Avatar";
-$l['flyover_setup_avatar_desc'] = $l['setting_flyover_avatar_desc'] = "Decide to allow or not the import of the avatar from this social network.";
-$l['flyover_setup_location'] = $l['setting_flyover_location'] = "Location";
-$l['flyover_setup_location_desc'] = $l['setting_flyover_location_desc'] = "Decide to allow or not the import of the location from this social network.";
-$l['flyover_setup_sex'] = $l['setting_flyover_sex'] = "Sex";
-$l['flyover_setup_sex_desc'] = $l['setting_flyover_sex_desc'] = "Decide to allow or not the import of the sex from this social network.";
-$l['flyover_setup_bio'] = $l['setting_flyover_bio'] = "Biography";
-$l['flyover_setup_bio_desc'] = $l['setting_flyover_bio_desc'] = "Decide to allow or not the import of the biography from this social network.";
-$l['flyover_setup_username'] = $l['setting_flyover_username'] = "Username";
-$l['flyover_setup_username_desc'] = $l['setting_flyover_username_desc'] = "Decide to allow or not the import of the username from this social network.";
-$l['flyover_setup_website'] = $l['setting_flyover_website'] = "Website";
-$l['flyover_setup_website_desc'] = $l['setting_flyover_website_desc'] = "Decide to allow or not the import of the website from this social network.";
-$l['flyover_setup_identifier'] = $l['setting_flyover_identifier'] = "Identifier";
-$l['flyover_setup_identifier_desc'] = $l['setting_flyover_identifier_desc'] = "Decide to allow or not the import of the identifier from this social network.";
-$l['flyover_setup_language'] = $l['setting_flyover_language'] = "Language";
-$l['flyover_setup_language_desc'] = $l['setting_flyover_language_desc'] = "Decide to allow or not the import of the language from this social network.";
+$l['flyover_setup_avatar'] = "Avatar";
+$l['flyover_setup_avatar_desc'] = "Decide to allow or not the import of the avatar from this social network.";
+$l['flyover_setup_location'] = "Location";
+$l['flyover_setup_location_desc'] = "Decide to allow or not the import of the location from this social network.";
+$l['flyover_setup_sex'] = "Sex";
+$l['flyover_setup_sex_desc'] = "Decide to allow or not the import of the sex from this social network.";
+$l['flyover_setup_bio'] = "Biography";
+$l['flyover_setup_bio_desc'] = "Decide to allow or not the import of the biography from this social network.";
+$l['flyover_setup_username'] = "Username";
+$l['flyover_setup_username_desc'] = "Decide to allow or not the import of the username from this social network.";
+$l['flyover_setup_website'] = "Website";
+$l['flyover_setup_website_desc'] = "Decide to allow or not the import of the website from this social network.";
+$l['flyover_setup_identifier'] = "Identifier";
+$l['flyover_setup_identifier_desc'] = "Decide to allow or not the import of the identifier from this social network.";
+$l['flyover_setup_language'] = "Language";
+$l['flyover_setup_language_desc'] = "Decide to allow or not the import of the language from this social network.";
+$l['flyover_setup_email'] = "Email";
+$l['flyover_setup_email_desc'] = "Decide to allow or not the import of the email from this social network.";
+$l['flyover_setup_profileurl'] = "Profile URL";
+$l['flyover_setup_profileurl_desc'] = "Decide to allow or not the import of the profile URL from this social network.";
 $l['flyover_setup_save'] = "Save";
 $l['flyover_setup_complete_active'] = "You have successfully set up {1} integration with your board. Your users can now login and register with {1}. If you are using the <i>&lt;flyover_login_box&gt;</i> variable in your templates, the login button has been added automatically; if you do not use that variable, you may add the login button manually to your templates. Here's the HTML:<br><br>
 <span style='padding-left: 40px'>&lt;a href='flyover.php?action=login&provider={1}'&gt;Login with {1}&lt;a&gt;</span><br><br>
 You can replace <i>Login with {1}</i> with whatever you want (even with an image).";
 $l['flyover_setup_complete_inactive'] = "You have successfully deactivated {1} integration with your board.";
 $l['flyover_setup_complete_synced_usergroups'] = "Usergroups have been synced correctly.";
+$l['flyover_setup_sync_options_use_default_cpf'] = "Use default profile field (current: {CURRENT})";
+$l['flyover_setup_sync_options_header_field'] = 'Field';
+$l['flyover_setup_sync_options_header_description'] = 'Description';
+$l['flyover_setup_sync_options_header_active'] = 'Active?';
+$l['flyover_setup_sync_options_header_customfield'] = 'Custom profile field';
 
 $l['flyover_status'] = "Status";
 $l['flyover_general'] = "General";

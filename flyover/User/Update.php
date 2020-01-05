@@ -23,14 +23,28 @@ class Update
 
 		$this->user = $user;
 
+		$this->providerSettings = $this->settings[$this->provider];
+		$this->customFieldsOptions = $this->providerSettings['customfields'];
+
 		// Sort out userfields permissions
 		foreach (Utilities::getUserfields() as $field) {
 
 			$tempKey = ($field . 'Identifier');
 
-			$this->$tempKey = ($this->mybb->settings['flyover_' . $field . 'field'])
-				? 'fid' . (int) $this->mybb->settings['flyover_' . $field . 'field']
-				: false;
+            $this->$tempKey = false;
+
+            // Priority: provider
+            if ($this->customFieldsOptions[$field]) {
+                $this->$tempKey = $this->customFieldsOptions[$field];
+            }
+            // Delayed: general settings
+            else if ($this->mybb->settings['flyover_' . $field . 'field']) {
+                $this->$tempKey = $this->mybb->settings['flyover_' . $field . 'field'];
+            }
+
+            if ($this->$tempKey) {
+                $this->$tempKey = 'fid' . (int) $this->$tempKey;
+            }
 
 		}
 	}
@@ -157,15 +171,7 @@ class Update
 
     public function settings($settings = [])
 	{
-		foreach ($settings as $key => $value) {
-
-			if (is_array($value)) {
-				$value = serialize($value);
-			}
-
-			$this->data[$key] = $value;
-
-		}
+		return $this->data[$this->provider . '_settings'] = $this->db->escape_string(serialize($settings));
 	}
 
 	public function customFieldsIdentifier()

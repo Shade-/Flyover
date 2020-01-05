@@ -58,9 +58,9 @@ class Main
 
 		$this->page->add_breadcrumb_item($this->lang->flyover, MAINURL);
 
-		$this->page->extra_header .= PHP_EOL . '<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/brands.css" integrity="sha384-1KLgFVb/gHrlDGLFPgMbeedi6tQBLcWvyNUN+YKXbD7ZFbjX6BLpMDf0PJ32XJfX" crossorigin="anonymous">';
-		$this->page->extra_header .= PHP_EOL . '<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/solid.css" integrity="sha384-+0VIRx+yz1WBcCTXBkVQYIBVNEFH1eP6Zknm16roZCyeNg2maWEpk/l/KsyFKs7G" crossorigin="anonymous">';
-		$this->page->extra_header .= PHP_EOL . '<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/fontawesome.css" integrity="sha384-jLuaxTTBR42U2qJ/pm4JRouHkEDHkVqH0T1nyQXn1mZ7Snycpf6Rl25VBNthU4z0" crossorigin="anonymous">';
+		$this->page->extra_header .= PHP_EOL . '<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/brands.css" crossorigin="anonymous">';
+		$this->page->extra_header .= PHP_EOL . '<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/solid.css" crossorigin="anonymous">';
+		$this->page->extra_header .= PHP_EOL . '<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/fontawesome.css" crossorigin="anonymous">';
 
 		$this->page->output_header($this->lang->flyover);
 		$this->page->output_nav_tabs($this->sub_tabs, 'general');

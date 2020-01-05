@@ -1,5 +1,5 @@
-@import url("https://use.fontawesome.com/releases/v5.6.3/css/brands.css");
-@import url("https://use.fontawesome.com/releases/v5.6.3/css/fontawesome.css");
+@import url("https://use.fontawesome.com/releases/v5.12.0/css/brands.css");
+@import url("https://use.fontawesome.com/releases/v5.12.0/css/fontawesome.css");
 
 .flyover th {
     text-align: center
@@ -58,6 +58,10 @@
 }
 .flyover [class*="500px"] {
     background: #444
+}
+.flyover .amazon {
+	background: #FF9900;
+	color: #000!important
 }
 .flyover .bitbucket {
     background: #205081
@@ -135,7 +139,8 @@
 	background: #FFCC00
 }
 .flyover .wechat {
-	background: #7bb32e
+	background: #7bb32e;
+	color: #000!important
 }
 .flyover .login_box {
     display: inline-block;

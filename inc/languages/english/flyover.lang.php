@@ -24,6 +24,9 @@ $l['flyover_error_unknown'] = "An unknown error occurred using Flyover.";
 $l['flyover_error_linking'] = "There was an error linking your profile to {1}. Please try again.";
 $l['flyover_error_need_to_change_email_password'] = "You cannot unlink your profile from {1} since it is the last social network associated to your account. You need to <a href='usercp.php?action=email_password'>set a password</a> if you want to unlink your account from {1}.";
 $l['flyover_error_function_not_used_correctly'] = "You did not use this function properly. Please go back and try again.";
+$l['flyover_error_unlinking_is_disabled'] = "Unlinking from providers is currently not allowed.";
+$l['flyover_error_forced_login'] = "At present times logging in is allowed through social networks only.";
+$l['flyover_error_forced_registration'] = "At present times registering is allowed through social networks only.";
 
 // Success messages
 $l['flyover_success_settings_updated'] = "Your social integration related settings have been updated correctly.";
@@ -49,6 +52,7 @@ $l['flyover_settings_location'] = "Location";
 $l['flyover_settings_username'] = "Username";
 $l['flyover_settings_website'] = "Website";
 $l['flyover_settings_identifier'] = "Identifier";
+$l['flyover_settings_language'] = "Language";
 $l['flyover_settings_connected_with'] = 'Connected as <b>{1}</b>';
 $l['flyover_settings_could_not_fetch'] = '<span class="name_not_present">Could not fetch your <b>{1}</b> name</span>';
 $l['flyover_settings_link_providers'] = 'Click on one of the following providers to connect your account with it.';

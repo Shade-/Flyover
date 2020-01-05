@@ -37,7 +37,7 @@ class Link extends Usercp
 			$user->synchronize($profile);
 
 			// Join usergroup
-			$settings = $flyover->cache->read('settings');
+			$settings = $this->cache->read('settings');
 			$setting = $settings[$this->provider];
 
 			$gid = (int) $setting['usergroup'] ?? (int) $this->mybb->settings['flyover_usergroup'];

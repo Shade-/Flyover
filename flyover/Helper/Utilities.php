@@ -14,7 +14,9 @@ class Utilities {
 			'location',
 			'username',
 			'identifier',
-			'language'
+			'language',
+			'email',
+			'profileurl'
 		];
 	}
 

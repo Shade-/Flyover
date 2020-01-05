@@ -1,6 +1,6 @@
 <?php
 
-if (version_compare(PHP_VERSION, '7.1', '<')) {
+if (version_compare(PHP_VERSION, '7.1.0', '<')) {
     throw new Exception('Flyover requires PHP version 7.1 or higher.');
 }
 
