@@ -34,7 +34,7 @@ class Flyover extends Usercp
 
 		ksort($activeProviders);
 
-		// Get the connected providers				
+		// Get the connected providers
 		$query = $this->db->simple_select(
 			'flyover_users',
 			'*',
@@ -48,9 +48,9 @@ class Flyover extends Usercp
 
 			verify_post_check($this->mybb->input['my_post_key']);
 
-			$newSettings = [];
-
 			$selectedSettings = (array) $this->mybb->input['providers'];
+
+			$update = new Update($this->mybb->user);
 
 			// Loop through the connected providers
 			foreach (array_keys($activeProviders) as $provider) {
@@ -60,23 +60,22 @@ class Flyover extends Usercp
 					continue;
 				}
 
-				$tempKey = $provider . '_settings';
+                $newSettings = [];
 
 				foreach (Helper\Utilities::getUserfields() as $setting) {
 
-					$newSettings[$tempKey][$setting] = 0;
+                    $newSettings[$setting] = 0;
 
-					if ($selectedSettings[$provider][$setting] == 1) {
-						$newSettings[$tempKey][$setting] = 1;
-					}
+                    if ($selectedSettings[$provider][$setting] == 1) {
+                        $newSettings[$setting] = 1;
+                    }
 
 				}
 
-			}
+                $update->settings($newSettings, $provider);
 
-			$update = new Update($this->mybb->user);
+            }
 
-			$update->settings($newSettings);
 			$update->finalize();
 
 			$redirect = new Redirect();

@@ -53,6 +53,8 @@ $l['flyover_settings_username'] = "Username";
 $l['flyover_settings_website'] = "Website";
 $l['flyover_settings_identifier'] = "Identifier";
 $l['flyover_settings_language'] = "Language";
+$l['flyover_settings_profileurl'] = "Profile URL";
+$l['flyover_settings_email'] = "Email";
 $l['flyover_settings_connected_with'] = 'Connected as <b>{1}</b>';
 $l['flyover_settings_could_not_fetch'] = '<span class="name_not_present">Could not fetch your <b>{1}</b> name</span>';
 $l['flyover_settings_link_providers'] = 'Click on one of the following providers to connect your account with it.';

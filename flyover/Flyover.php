@@ -53,15 +53,15 @@ class Flyover extends Hybridauth
 
 			$keys = [];
 
-			if ($setting['id']) {
+			if ($currentProviderSettings['id']) {
 				$keys['id'] = $currentProviderSettings['id'];
 			}
 
-			if ($setting['key_token']) {
+			if ($currentProviderSettings['key_token']) {
 				$keys['key'] = $currentProviderSettings['key_token'];
 			}
 
-			if ($setting['secret']) {
+			if ($currentProviderSettings['secret']) {
 				$keys['secret'] = $currentProviderSettings['secret'];
 			}
 

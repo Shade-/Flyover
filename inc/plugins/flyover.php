@@ -179,7 +179,7 @@ function flyover_install()
 
 	$PL->settings('flyover', $lang->setting_group_flyover, $lang->setting_group_flyover_desc, $settingsToAdd);
 
-	// Add templates	   
+	// Add templates
 	$dir       = new DirectoryIterator(dirname(__FILE__) . '/Flyover/templates');
 	$templates = [];
 	foreach ($dir as $file) {
@@ -210,7 +210,8 @@ function flyover_install()
 	        key_token VARCHAR(255) NOT NULL DEFAULT '',
 	        scopes TEXT,
 	        usergroup TINYINT(5) NOT NULL DEFAULT '2',
-			settings TEXT
+            settings TEXT,
+            customfields TEXT
         ) ENGINE=MyISAM{$collation};");
 
 	}
