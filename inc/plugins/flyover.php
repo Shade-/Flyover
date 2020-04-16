@@ -6,7 +6,7 @@
  * @package Flyover
  * @author  Shade <shad3-@outlook.com>
  * @license Copyrighted ©
- * @version 2.2
+ * @version 2.3
  */
 
 if (!defined('IN_MYBB')) {
@@ -28,7 +28,7 @@ function flyover_info()
 		'website' => 'https://www.mybboost.com/forum-flyover',
 		'author' => 'Shade',
 		'authorsite' => 'https://www.mybboost.com',
-		'version' => '2.2',
+		'version' => '2.3',
 		'compatibility' => '16*,18*'
 	];
 }
