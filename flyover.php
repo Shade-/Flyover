@@ -103,8 +103,8 @@ if ($mybb->input['action'] == 'login') {
                 // !isset() is normal. If fast registration is on, $mybb->input won't be populated.
                 // We default to 1.
                 if (
-                    $mybb->input[$setting] == 1 or 
-                    (!isset($mybb->input[$setting]) and $mybb->settings['flyover_fastregistration'])
+                    $mybb->input['syncOptions'][$setting] == 1 or 
+                    (!isset($mybb->input['syncOptions'][$setting]) and $mybb->settings['flyover_fastregistration'])
                 ) {
                     $settingsToAdd[$setting] = 1;
                 }
@@ -372,7 +372,7 @@ if ($mybb->input['action'] == 'login') {
                 if ($flyover->settings[$flyover->provider]['settings'][$setting]) {
 
                     $tempKey = 'flyover_settings_' . $setting;
-                    $checked = ($mybb->input[$setting] or $mybb->request_method != 'post') ? " checked=\"checked\"" : '';
+                    $checked = ($mybb->input['syncOptions'][$setting] or $mybb->request_method != 'post') ? " checked=\"checked\"" : '';
 
                     $label = $lang->$tempKey;
                     $altbg = alt_trow();
