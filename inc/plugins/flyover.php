@@ -5,8 +5,8 @@
  *
  * @package Flyover
  * @author  Shade <shad3-@outlook.com>
- * @license Copyrighted ©
- * @version 2.3
+ * @license MIT https://opensource.org/licenses/MIT
+ * @version 2.4
  */
 
 if (!defined('IN_MYBB')) {
@@ -28,7 +28,7 @@ function flyover_info()
 		'website' => 'https://www.mybboost.com/forum-flyover',
 		'author' => 'Shade',
 		'authorsite' => 'https://www.mybboost.com',
-		'version' => '2.3',
+		'version' => '2.4',
 		'compatibility' => '16*,18*'
 	];
 }
@@ -399,7 +399,7 @@ function flyover_login_validate(&$data)
 	global $mybb, $lang;
 
     // Block logging in through normal means
-    if (in_array($mybb->settings['flyover_operational_state'], [3,4])) {
+    if (in_array($mybb->settings['flyover_operational_state'], [3,4]) and !defined('IN_ADMINCP')) {
         return $data->set_error($lang->flyover_error_forced_login);
     }
 }
